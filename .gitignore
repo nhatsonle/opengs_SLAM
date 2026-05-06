@@ -9,3 +9,8 @@ preprocess/
 *.tmp
 *.swp
 *.DS_Store
+datasets/
+croco
+checkpoints
+results
+submodules

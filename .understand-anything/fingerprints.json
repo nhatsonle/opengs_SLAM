@@ -1,0 +1,6021 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "278c687d010f273015af0608a8453e9d5cc0749d",
+  "generatedAt": "2026-05-06T18:04:59.253Z",
+  "files": {
+    "configs/mono/waymo/100613.yaml": {
+      "filePath": "configs/mono/waymo/100613.yaml",
+      "contentHash": "511dcd21b80ccd6c4148d2b54df432d0d9c627be4b1e1e67410f42babdba6b28",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "configs/mono/waymo/106762.yaml": {
+      "filePath": "configs/mono/waymo/106762.yaml",
+      "contentHash": "ed959553541d0a39675c862d7246586371893692bc9f96a29d97f88a4dc7677f",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "configs/mono/waymo/132384.yaml": {
+      "filePath": "configs/mono/waymo/132384.yaml",
+      "contentHash": "ec7794ba4089625ac17b238d088cf60ca211582f2158b8db1b2f0a3e8a8ee518",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "configs/mono/waymo/13476.yaml": {
+      "filePath": "configs/mono/waymo/13476.yaml",
+      "contentHash": "273a614aaaeb42861669fc1264a649573e83ef8e382fa90a39edfa10525c5898",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "configs/mono/waymo/152706.yaml": {
+      "filePath": "configs/mono/waymo/152706.yaml",
+      "contentHash": "636dca8f481ea6f99287026b42d38e63357abd9bdbeff89b71baa4aab81464bd",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "configs/mono/waymo/153495.yaml": {
+      "filePath": "configs/mono/waymo/153495.yaml",
+      "contentHash": "0024823bc7069efa76cd9be9ffe0b0f1ae6f82fd2319712b57133fbe9e8689d9",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "configs/mono/waymo/158686.yaml": {
+      "filePath": "configs/mono/waymo/158686.yaml",
+      "contentHash": "c4a746089f655be02bd228d5a172c7d4436733622474fa77f788db4b4951c513",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "configs/mono/waymo/163454.yaml": {
+      "filePath": "configs/mono/waymo/163454.yaml",
+      "contentHash": "8009d36fe2aaa71c62d6274f871f9b771023933b72945d7644f9c66d58f14131",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "configs/mono/waymo/405841.yaml": {
+      "filePath": "configs/mono/waymo/405841.yaml",
+      "contentHash": "4de18d2fa39ccc5fd0f349253c40e51ca8be76b005f78c604a5dffb603cc0233",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 21,
+      "hasStructuralAnalysis": true
+    },
+    "configs/mono/waymo/base_config.yaml": {
+      "filePath": "configs/mono/waymo/base_config.yaml",
+      "contentHash": "e29cf34fdd4c783c0779cbc6a1f211160197709199155df1f69b51a19bd74df2",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 80,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/__init__.py": {
+      "filePath": "dust3r/__init__.py",
+      "contentHash": "b75338cd2bc70ca0d9dac551d4727a0e11a8098d15a85487691a538d0284c473",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 3,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/cloud_opt/__init__.py": {
+      "filePath": "dust3r/cloud_opt/__init__.py",
+      "contentHash": "74bbe288971095c1648c08e92f8f72b91bf6eb9063dcd6d9bc8c59595802bad0",
+      "functions": [
+        {
+          "name": "global_aligner",
+          "params": [
+            "dust3r_output",
+            "device",
+            "mode",
+            "**optim_kw"
+          ],
+          "exported": true,
+          "lineCount": 14
+        }
+      ],
+      "classes": [
+        {
+          "name": "GlobalAlignerMode",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "imports": [
+        {
+          "source": "enum",
+          "specifiers": [
+            "Enum"
+          ]
+        },
+        {
+          "source": ".optimizer",
+          "specifiers": [
+            "PointCloudOptimizer"
+          ]
+        },
+        {
+          "source": ".modular_optimizer",
+          "specifiers": [
+            "ModularPointCloudOptimizer"
+          ]
+        },
+        {
+          "source": ".pair_viewer",
+          "specifiers": [
+            "PairViewer"
+          ]
+        }
+      ],
+      "exports": [
+        "GlobalAlignerMode",
+        "global_aligner"
+      ],
+      "totalLines": 34,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/cloud_opt/base_opt.py": {
+      "filePath": "dust3r/cloud_opt/base_opt.py",
+      "contentHash": "5a5b9dd92191990fe47bffefa89fb90f439afb17a10cce64dfb775c0b671131f",
+      "functions": [
+        {
+          "name": "global_alignment_loop",
+          "params": [
+            "net",
+            "lr",
+            "niter",
+            "schedule",
+            "lr_min"
+          ],
+          "exported": true,
+          "lineCount": 24
+        },
+        {
+          "name": "global_alignment_iter",
+          "params": [
+            "net",
+            "cur_iter",
+            "niter",
+            "lr_base",
+            "lr_min",
+            "optimizer",
+            "schedule"
+          ],
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "clean_pointcloud",
+          "params": [
+            "im_confs",
+            "K",
+            "cams",
+            "depthmaps",
+            "all_pts3d",
+            "tol",
+            "bad_conf",
+            "dbg"
+          ],
+          "exported": true,
+          "lineCount": 36
+        }
+      ],
+      "classes": [
+        {
+          "name": "BasePCOptimizer",
+          "methods": [
+            "__init__",
+            "_init_from_views",
+            "n_edges",
+            "str_edges",
+            "imsizes",
+            "device",
+            "state_dict",
+            "load_state_dict",
+            "_check_edges",
+            "_compute_img_conf",
+            "get_adaptors",
+            "_get_poses",
+            "_set_pose",
+            "get_pw_norm_scale_factor",
+            "get_pw_scale",
+            "get_pw_poses",
+            "get_masks",
+            "depth_to_pts3d",
+            "get_pts3d",
+            "_set_focal",
+            "get_focals",
+            "get_known_focal_mask",
+            "get_principal_points",
+            "get_conf",
+            "get_im_poses",
+            "_set_depthmap",
+            "get_depthmaps",
+            "clean_pointcloud",
+            "forward",
+            "compute_global_alignment",
+            "mask_sky",
+            "show"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 297
+        }
+      ],
+      "imports": [
+        {
+          "source": "copy",
+          "specifiers": [
+            "deepcopy"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.nn",
+          "specifiers": [
+            "nn"
+          ]
+        },
+        {
+          "source": "roma",
+          "specifiers": [
+            "roma"
+          ]
+        },
+        {
+          "source": "copy",
+          "specifiers": [
+            "deepcopy"
+          ]
+        },
+        {
+          "source": "tqdm",
+          "specifiers": [
+            "tqdm"
+          ]
+        },
+        {
+          "source": "dust3r.utils.geometry",
+          "specifiers": [
+            "inv",
+            "geotrf"
+          ]
+        },
+        {
+          "source": "dust3r.utils.device",
+          "specifiers": [
+            "to_numpy"
+          ]
+        },
+        {
+          "source": "dust3r.utils.image",
+          "specifiers": [
+            "rgb"
+          ]
+        },
+        {
+          "source": "dust3r.viz",
+          "specifiers": [
+            "SceneViz",
+            "segment_sky",
+            "auto_cam_size"
+          ]
+        },
+        {
+          "source": "dust3r.optim_factory",
+          "specifiers": [
+            "adjust_learning_rate_by_lr"
+          ]
+        },
+        {
+          "source": "dust3r.cloud_opt.commons",
+          "specifiers": [
+            "edge_str",
+            "ALL_DISTS",
+            "NoGradParamDict",
+            "get_imshapes",
+            "signed_expm1",
+            "signed_log1p",
+            "cosine_schedule",
+            "linear_schedule",
+            "get_conf_trf"
+          ]
+        },
+        {
+          "source": "dust3r.cloud_opt.init_im_poses",
+          "specifiers": [
+            "init_fun"
+          ]
+        }
+      ],
+      "exports": [
+        "BasePCOptimizer",
+        "global_alignment_loop",
+        "global_alignment_iter",
+        "clean_pointcloud"
+      ],
+      "totalLines": 406,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/cloud_opt/commons.py": {
+      "filePath": "dust3r/cloud_opt/commons.py",
+      "contentHash": "f677ac47177ef8c476bb1098e18cc6d0e8c0a39afc377bbd6538e3a13a34a434",
+      "functions": [
+        {
+          "name": "edge_str",
+          "params": [
+            "i",
+            "j"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "i_j_ij",
+          "params": [
+            "ij"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "edge_conf",
+          "params": [
+            "conf_i",
+            "conf_j",
+            "edge"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "compute_edge_scores",
+          "params": [
+            "edges",
+            "conf_i",
+            "conf_j"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "NoGradParamDict",
+          "params": [
+            "x"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "get_imshapes",
+          "params": [
+            "edges",
+            "pred_i",
+            "pred_j"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "get_conf_trf",
+          "params": [
+            "mode"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "l2_dist",
+          "params": [
+            "a",
+            "b",
+            "weight"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "l1_dist",
+          "params": [
+            "a",
+            "b",
+            "weight"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "signed_log1p",
+          "params": [
+            "x"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "signed_expm1",
+          "params": [
+            "x"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "cosine_schedule",
+          "params": [
+            "t",
+            "lr_start",
+            "lr_end"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "linear_schedule",
+          "params": [
+            "t",
+            "lr_start",
+            "lr_end"
+          ],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.nn",
+          "specifiers": [
+            "nn"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        }
+      ],
+      "exports": [
+        "edge_str",
+        "i_j_ij",
+        "edge_conf",
+        "compute_edge_scores",
+        "NoGradParamDict",
+        "get_imshapes",
+        "get_conf_trf",
+        "l2_dist",
+        "l1_dist",
+        "signed_log1p",
+        "signed_expm1",
+        "cosine_schedule",
+        "linear_schedule"
+      ],
+      "totalLines": 91,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/cloud_opt/init_im_poses.py": {
+      "filePath": "dust3r/cloud_opt/init_im_poses.py",
+      "contentHash": "64285d0fdee7769852f30ab1acfba1fbb994f999d4364e58282dac0e7f440735",
+      "functions": [
+        {
+          "name": "init_from_known_poses",
+          "params": [
+            "niter_PnP",
+            "min_conf_thr"
+          ],
+          "exported": true,
+          "lineCount": 40
+        },
+        {
+          "name": "init_minimum_spanning_tree",
+          "params": [
+            "**kw"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "init_from_pts3d",
+          "params": [
+            "pts3d",
+            "im_focals",
+            "im_poses"
+          ],
+          "exported": true,
+          "lineCount": 41
+        },
+        {
+          "name": "minimum_spanning_tree",
+          "params": [
+            "imshapes",
+            "edges",
+            "pred_i",
+            "pred_j",
+            "conf_i",
+            "conf_j",
+            "im_conf",
+            "min_conf_thr",
+            "device",
+            "has_im_poses",
+            "niter_PnP",
+            "verbose"
+          ],
+          "exported": true,
+          "lineCount": 87
+        },
+        {
+          "name": "dict_to_sparse_graph",
+          "params": [
+            "dic"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "rigid_points_registration",
+          "params": [
+            "pts1",
+            "pts2",
+            "conf"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "sRT_to_4x4",
+          "params": [
+            "scale",
+            "R",
+            "T",
+            "device"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "estimate_focal",
+          "params": [
+            "pts3d_i",
+            "pp"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "pixel_grid",
+          "params": [
+            "H",
+            "W"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "fast_pnp",
+          "params": [
+            "pts3d",
+            "focal",
+            "msk",
+            "device",
+            "pp",
+            "niter_PnP"
+          ],
+          "exported": true,
+          "lineCount": 41
+        },
+        {
+          "name": "get_known_poses",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "get_known_focals",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "align_multiple_poses",
+          "params": [
+            "src_poses",
+            "target_poses"
+          ],
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "functools",
+          "specifiers": [
+            "cache"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "scipy.sparse",
+          "specifiers": [
+            "sp"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "cv2",
+          "specifiers": [
+            "cv2"
+          ]
+        },
+        {
+          "source": "roma",
+          "specifiers": [
+            "roma"
+          ]
+        },
+        {
+          "source": "tqdm",
+          "specifiers": [
+            "tqdm"
+          ]
+        },
+        {
+          "source": "dust3r.utils.geometry",
+          "specifiers": [
+            "geotrf",
+            "inv",
+            "get_med_dist_between_poses"
+          ]
+        },
+        {
+          "source": "dust3r.post_process",
+          "specifiers": [
+            "estimate_focal_knowing_depth"
+          ]
+        },
+        {
+          "source": "dust3r.viz",
+          "specifiers": [
+            "to_numpy"
+          ]
+        },
+        {
+          "source": "dust3r.cloud_opt.commons",
+          "specifiers": [
+            "edge_str",
+            "i_j_ij",
+            "compute_edge_scores"
+          ]
+        }
+      ],
+      "exports": [
+        "init_from_known_poses",
+        "init_minimum_spanning_tree",
+        "init_from_pts3d",
+        "minimum_spanning_tree",
+        "dict_to_sparse_graph",
+        "rigid_points_registration",
+        "sRT_to_4x4",
+        "estimate_focal",
+        "pixel_grid",
+        "fast_pnp",
+        "get_known_poses",
+        "get_known_focals",
+        "align_multiple_poses"
+      ],
+      "totalLines": 317,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/cloud_opt/modular_optimizer.py": {
+      "filePath": "dust3r/cloud_opt/modular_optimizer.py",
+      "contentHash": "83dbc78b94dcd24e50e679d4366f06304df64261312ad7bfcebf022bac23738f",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ModularPointCloudOptimizer",
+          "methods": [
+            "__init__",
+            "preset_pose",
+            "preset_intrinsics",
+            "preset_focal",
+            "preset_principal_point",
+            "_no_grad",
+            "_get_msk_indices",
+            "_set_focal",
+            "get_focals",
+            "_set_principal_point",
+            "get_principal_points",
+            "get_intrinsics",
+            "get_im_poses",
+            "_set_depthmap",
+            "get_depthmaps",
+            "depth_to_pts3d",
+            "get_pts3d"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 129
+        }
+      ],
+      "imports": [
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.nn",
+          "specifiers": [
+            "nn"
+          ]
+        },
+        {
+          "source": "dust3r.cloud_opt.base_opt",
+          "specifiers": [
+            "BasePCOptimizer"
+          ]
+        },
+        {
+          "source": "dust3r.utils.geometry",
+          "specifiers": [
+            "geotrf"
+          ]
+        },
+        {
+          "source": "dust3r.utils.device",
+          "specifiers": [
+            "to_cpu",
+            "to_numpy"
+          ]
+        },
+        {
+          "source": "dust3r.utils.geometry",
+          "specifiers": [
+            "depthmap_to_pts3d"
+          ]
+        }
+      ],
+      "exports": [
+        "ModularPointCloudOptimizer"
+      ],
+      "totalLines": 146,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/cloud_opt/optimizer.py": {
+      "filePath": "dust3r/cloud_opt/optimizer.py",
+      "contentHash": "a8f908bad484f602195a3d11cebeadde51c22c25118bdd11bd51856a30268272",
+      "functions": [
+        {
+          "name": "_fast_depthmap_to_pts3d",
+          "params": [
+            "depth",
+            "pixel_grid",
+            "focal",
+            "pp"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "ParameterStack",
+          "params": [
+            "params",
+            "keys",
+            "is_param",
+            "fill"
+          ],
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "_ravel_hw",
+          "params": [
+            "tensor",
+            "fill"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "acceptable_focal_range",
+          "params": [
+            "H",
+            "W",
+            "minf",
+            "maxf"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "apply_mask",
+          "params": [
+            "img",
+            "msk"
+          ],
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "PointCloudOptimizer",
+          "methods": [
+            "__init__",
+            "_check_all_imgs_are_selected",
+            "preset_pose",
+            "preset_focal",
+            "preset_principal_point",
+            "_get_msk_indices",
+            "_no_grad",
+            "_set_focal",
+            "get_focals",
+            "get_known_focal_mask",
+            "_set_principal_point",
+            "get_principal_points",
+            "get_intrinsics",
+            "get_im_poses",
+            "_set_depthmap",
+            "get_depthmaps",
+            "depth_to_pts3d",
+            "get_pts3d",
+            "forward"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 186
+        }
+      ],
+      "imports": [
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.nn",
+          "specifiers": [
+            "nn"
+          ]
+        },
+        {
+          "source": "dust3r.cloud_opt.base_opt",
+          "specifiers": [
+            "BasePCOptimizer"
+          ]
+        },
+        {
+          "source": "dust3r.utils.geometry",
+          "specifiers": [
+            "xy_grid",
+            "geotrf"
+          ]
+        },
+        {
+          "source": "dust3r.utils.device",
+          "specifiers": [
+            "to_cpu",
+            "to_numpy"
+          ]
+        }
+      ],
+      "exports": [
+        "PointCloudOptimizer",
+        "_fast_depthmap_to_pts3d",
+        "ParameterStack",
+        "_ravel_hw",
+        "acceptable_focal_range",
+        "apply_mask"
+      ],
+      "totalLines": 249,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/cloud_opt/pair_viewer.py": {
+      "filePath": "dust3r/cloud_opt/pair_viewer.py",
+      "contentHash": "a5a1430a52fbf9857fb00fc0e8c60021a15d5db23657ab26779553eb6c3d9fb6",
+      "functions": [],
+      "classes": [
+        {
+          "name": "PairViewer",
+          "methods": [
+            "__init__",
+            "_set_depthmap",
+            "get_depthmaps",
+            "_set_focal",
+            "get_focals",
+            "get_known_focal_mask",
+            "get_principal_points",
+            "get_intrinsics",
+            "get_im_poses",
+            "depth_to_pts3d",
+            "forward"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 110
+        }
+      ],
+      "imports": [
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.nn",
+          "specifiers": [
+            "nn"
+          ]
+        },
+        {
+          "source": "cv2",
+          "specifiers": [
+            "cv2"
+          ]
+        },
+        {
+          "source": "dust3r.cloud_opt.base_opt",
+          "specifiers": [
+            "BasePCOptimizer"
+          ]
+        },
+        {
+          "source": "dust3r.utils.geometry",
+          "specifiers": [
+            "inv",
+            "geotrf",
+            "depthmap_to_absolute_camera_coordinates"
+          ]
+        },
+        {
+          "source": "dust3r.cloud_opt.commons",
+          "specifiers": [
+            "edge_str"
+          ]
+        },
+        {
+          "source": "dust3r.post_process",
+          "specifiers": [
+            "estimate_focal_knowing_depth"
+          ]
+        }
+      ],
+      "exports": [
+        "PairViewer"
+      ],
+      "totalLines": 128,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/demo.py": {
+      "filePath": "dust3r/demo.py",
+      "contentHash": "6d8c8c96ca80bab06c0ab93481cb29f08fe9d90f0897374ab539708618188950",
+      "functions": [
+        {
+          "name": "get_args_parser",
+          "params": [],
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "set_print_with_timestamp",
+          "params": [
+            "time_format"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "_convert_scene_output_to_glb",
+          "params": [
+            "outdir",
+            "imgs",
+            "pts3d",
+            "mask",
+            "focals",
+            "cams2world",
+            "cam_size",
+            "cam_color",
+            "as_pointcloud",
+            "transparent_cams",
+            "silent"
+          ],
+          "exported": true,
+          "lineCount": 42
+        },
+        {
+          "name": "get_3D_model_from_scene",
+          "params": [
+            "outdir",
+            "silent",
+            "scene",
+            "min_conf_thr",
+            "as_pointcloud",
+            "mask_sky",
+            "clean_depth",
+            "transparent_cams",
+            "cam_size"
+          ],
+          "exported": true,
+          "lineCount": 23
+        },
+        {
+          "name": "get_reconstructed_scene",
+          "params": [
+            "outdir",
+            "model",
+            "device",
+            "silent",
+            "image_size",
+            "filelist",
+            "schedule",
+            "niter",
+            "min_conf_thr",
+            "as_pointcloud",
+            "mask_sky",
+            "clean_depth",
+            "transparent_cams",
+            "cam_size",
+            "scenegraph_type",
+            "winsize",
+            "refid"
+          ],
+          "exported": true,
+          "lineCount": 48
+        },
+        {
+          "name": "set_scenegraph_options",
+          "params": [
+            "inputfiles",
+            "winsize",
+            "refid",
+            "scenegraph_type"
+          ],
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "main_demo",
+          "params": [
+            "tmpdirname",
+            "model",
+            "device",
+            "image_size",
+            "server_name",
+            "server_port",
+            "silent"
+          ],
+          "exported": true,
+          "lineCount": 78
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "math",
+          "specifiers": [
+            "math"
+          ]
+        },
+        {
+          "source": "builtins",
+          "specifiers": [
+            "builtins"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "datetime"
+          ]
+        },
+        {
+          "source": "gradio",
+          "specifiers": [
+            "gradio"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "functools",
+          "specifiers": [
+            "functools"
+          ]
+        },
+        {
+          "source": "trimesh",
+          "specifiers": [
+            "trimesh"
+          ]
+        },
+        {
+          "source": "copy",
+          "specifiers": [
+            "copy"
+          ]
+        },
+        {
+          "source": "scipy.spatial.transform",
+          "specifiers": [
+            "Rotation"
+          ]
+        },
+        {
+          "source": "dust3r.inference",
+          "specifiers": [
+            "inference"
+          ]
+        },
+        {
+          "source": "dust3r.image_pairs",
+          "specifiers": [
+            "make_pairs"
+          ]
+        },
+        {
+          "source": "dust3r.utils.image",
+          "specifiers": [
+            "load_images",
+            "rgb"
+          ]
+        },
+        {
+          "source": "dust3r.utils.device",
+          "specifiers": [
+            "to_numpy"
+          ]
+        },
+        {
+          "source": "dust3r.viz",
+          "specifiers": [
+            "add_scene_cam",
+            "CAM_COLORS",
+            "OPENGL",
+            "pts3d_to_trimesh",
+            "cat_meshes"
+          ]
+        },
+        {
+          "source": "dust3r.cloud_opt",
+          "specifiers": [
+            "global_aligner",
+            "GlobalAlignerMode"
+          ]
+        },
+        {
+          "source": "matplotlib.pyplot",
+          "specifiers": [
+            "pl"
+          ]
+        }
+      ],
+      "exports": [
+        "get_args_parser",
+        "set_print_with_timestamp",
+        "_convert_scene_output_to_glb",
+        "get_3D_model_from_scene",
+        "get_reconstructed_scene",
+        "set_scenegraph_options",
+        "main_demo"
+      ],
+      "totalLines": 284,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/heads/__init__.py": {
+      "filePath": "dust3r/heads/__init__.py",
+      "contentHash": "a20cc2a1d8912a0ea558938fd0a9ce0a1126e9b8519f64d8495d5e6b13fc9f52",
+      "functions": [
+        {
+          "name": "head_factory",
+          "params": [
+            "head_type",
+            "output_mode",
+            "net",
+            "has_conf"
+          ],
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": ".linear_head",
+          "specifiers": [
+            "LinearPts3d"
+          ]
+        },
+        {
+          "source": ".dpt_head",
+          "specifiers": [
+            "create_dpt_head"
+          ]
+        }
+      ],
+      "exports": [
+        "head_factory"
+      ],
+      "totalLines": 20,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/heads/dpt_head.py": {
+      "filePath": "dust3r/heads/dpt_head.py",
+      "contentHash": "8e0a1ac2509eeb449499fe51031ab7b0ec52f6dfadfd6f8431f3cda949926055",
+      "functions": [
+        {
+          "name": "create_dpt_head",
+          "params": [
+            "net",
+            "has_conf"
+          ],
+          "exported": true,
+          "lineCount": 20
+        }
+      ],
+      "classes": [
+        {
+          "name": "DPTOutputAdapter_fix",
+          "methods": [
+            "init",
+            "forward"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 46
+        },
+        {
+          "name": "PixelwiseTaskWithDPT",
+          "methods": [
+            "__init__",
+            "forward"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 26
+        }
+      ],
+      "imports": [
+        {
+          "source": "einops",
+          "specifiers": [
+            "rearrange"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "List"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.nn",
+          "specifiers": [
+            "nn"
+          ]
+        },
+        {
+          "source": "dust3r.heads.postprocess",
+          "specifiers": [
+            "postprocess"
+          ]
+        },
+        {
+          "source": "dust3r.utils.path_to_croco",
+          "specifiers": [
+            "dust3r.utils.path_to_croco"
+          ]
+        },
+        {
+          "source": "models.dpt_block",
+          "specifiers": [
+            "DPTOutputAdapter"
+          ]
+        }
+      ],
+      "exports": [
+        "DPTOutputAdapter_fix",
+        "PixelwiseTaskWithDPT",
+        "create_dpt_head"
+      ],
+      "totalLines": 116,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/heads/linear_head.py": {
+      "filePath": "dust3r/heads/linear_head.py",
+      "contentHash": "b4e50aed58fcca450118695230062ffcae3dfc9490639ead7e1248a3648dfc91",
+      "functions": [],
+      "classes": [
+        {
+          "name": "LinearPts3d",
+          "methods": [
+            "__init__",
+            "setup",
+            "forward"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 30
+        }
+      ],
+      "imports": [
+        {
+          "source": "torch.nn",
+          "specifiers": [
+            "nn"
+          ]
+        },
+        {
+          "source": "torch.nn.functional",
+          "specifiers": [
+            "F"
+          ]
+        },
+        {
+          "source": "dust3r.heads.postprocess",
+          "specifiers": [
+            "postprocess"
+          ]
+        }
+      ],
+      "exports": [
+        "LinearPts3d"
+      ],
+      "totalLines": 42,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/heads/postprocess.py": {
+      "filePath": "dust3r/heads/postprocess.py",
+      "contentHash": "8afb5b98fbbb559fb932cd7cc33f41c1e58980a75449ea9a676a196195141383",
+      "functions": [
+        {
+          "name": "postprocess",
+          "params": [
+            "out",
+            "depth_mode",
+            "conf_mode"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "reg_dense_depth",
+          "params": [
+            "xyz",
+            "mode"
+          ],
+          "exported": true,
+          "lineCount": 25
+        },
+        {
+          "name": "reg_dense_conf",
+          "params": [
+            "x",
+            "mode"
+          ],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        }
+      ],
+      "exports": [
+        "postprocess",
+        "reg_dense_depth",
+        "reg_dense_conf"
+      ],
+      "totalLines": 59,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/image_pairs.py": {
+      "filePath": "dust3r/image_pairs.py",
+      "contentHash": "b0b28df0868c0663b1dccb0396391efe7b9b0711fab09c1bb57fd129847310a5",
+      "functions": [
+        {
+          "name": "make_pairs",
+          "params": [
+            "imgs",
+            "scene_graph",
+            "prefilter",
+            "symmetrize"
+          ],
+          "exported": true,
+          "lineCount": 58
+        },
+        {
+          "name": "sel",
+          "params": [
+            "x",
+            "kept"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "_filter_edges_seq",
+          "params": [
+            "edges",
+            "seq_dis_thr",
+            "cyclic"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "filter_pairs_seq",
+          "params": [
+            "pairs",
+            "seq_dis_thr",
+            "cyclic"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "filter_edges_seq",
+          "params": [
+            "view1",
+            "view2",
+            "pred1",
+            "pred2",
+            "seq_dis_thr",
+            "cyclic"
+          ],
+          "exported": true,
+          "lineCount": 5
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        }
+      ],
+      "exports": [
+        "make_pairs",
+        "sel",
+        "_filter_edges_seq",
+        "filter_pairs_seq",
+        "filter_edges_seq"
+      ],
+      "totalLines": 105,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/inference.py": {
+      "filePath": "dust3r/inference.py",
+      "contentHash": "4ab43d4716c3eda0babf949e804c207654bf98aad3a0b0a48aa1b31b04b8e999",
+      "functions": [
+        {
+          "name": "_interleave_imgs",
+          "params": [
+            "img1",
+            "img2"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "make_batch_symmetric",
+          "params": [
+            "batch"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "loss_of_one_batch",
+          "params": [
+            "batch",
+            "model",
+            "criterion",
+            "device",
+            "symmetrize_batch",
+            "use_amp",
+            "ret"
+          ],
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "inference",
+          "params": [
+            "pairs",
+            "model",
+            "device",
+            "batch_size",
+            "verbose"
+          ],
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "check_if_same_size",
+          "params": [
+            "pairs"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "get_pred_pts3d",
+          "params": [
+            "gt",
+            "pred",
+            "use_pose"
+          ],
+          "exported": true,
+          "lineCount": 23
+        },
+        {
+          "name": "find_opt_scaling",
+          "params": [
+            "gt_pts1",
+            "gt_pts2",
+            "pr_pts1",
+            "pr_pts2",
+            "fit_mode",
+            "valid1",
+            "valid2"
+          ],
+          "exported": true,
+          "lineCount": 45
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "tqdm",
+          "specifiers": [
+            "tqdm"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "dust3r.utils.device",
+          "specifiers": [
+            "to_cpu",
+            "collate_with_cat"
+          ]
+        },
+        {
+          "source": "dust3r.utils.misc",
+          "specifiers": [
+            "invalid_to_nans"
+          ]
+        },
+        {
+          "source": "dust3r.utils.geometry",
+          "specifiers": [
+            "depthmap_to_pts3d",
+            "geotrf"
+          ]
+        }
+      ],
+      "exports": [
+        "_interleave_imgs",
+        "make_batch_symmetric",
+        "loss_of_one_batch",
+        "inference",
+        "check_if_same_size",
+        "get_pred_pts3d",
+        "find_opt_scaling"
+      ],
+      "totalLines": 151,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/losses.py": {
+      "filePath": "dust3r/losses.py",
+      "contentHash": "2f206062fc488e97a9ea6060a05c9e24fe08cb01da89d1837de32b603c4f27b1",
+      "functions": [
+        {
+          "name": "Sum",
+          "params": [
+            "*losses_and_masks"
+          ],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [
+        {
+          "name": "BaseCriterion",
+          "methods": [
+            "__init__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "LLoss",
+          "methods": [
+            "forward",
+            "distance"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "L21Loss",
+          "methods": [
+            "distance"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "Criterion",
+          "methods": [
+            "__init__",
+            "get_name",
+            "with_reduction"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "MultiLoss",
+          "methods": [
+            "__init__",
+            "compute_loss",
+            "get_name",
+            "__mul__",
+            "__add__",
+            "__repr__",
+            "forward"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 58
+        },
+        {
+          "name": "Regr3D",
+          "methods": [
+            "__init__",
+            "get_all_pts3d",
+            "compute_loss"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 53
+        },
+        {
+          "name": "ConfLoss",
+          "methods": [
+            "__init__",
+            "get_name",
+            "get_conf_log",
+            "compute_loss"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 42
+        },
+        {
+          "name": "Regr3D_ShiftInv",
+          "methods": [
+            "get_all_pts3d"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 23
+        },
+        {
+          "name": "Regr3D_ScaleInv",
+          "methods": [
+            "get_all_pts3d"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 29
+        },
+        {
+          "name": "Regr3D_ScaleShiftInv",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "copy",
+          "specifiers": [
+            "copy",
+            "deepcopy"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.nn",
+          "specifiers": [
+            "nn"
+          ]
+        },
+        {
+          "source": "dust3r.inference",
+          "specifiers": [
+            "get_pred_pts3d",
+            "find_opt_scaling"
+          ]
+        },
+        {
+          "source": "dust3r.utils.geometry",
+          "specifiers": [
+            "inv",
+            "geotrf",
+            "normalize_pointcloud"
+          ]
+        },
+        {
+          "source": "dust3r.utils.geometry",
+          "specifiers": [
+            "get_joint_pointcloud_depth",
+            "get_joint_pointcloud_center_scale"
+          ]
+        }
+      ],
+      "exports": [
+        "Sum",
+        "BaseCriterion",
+        "LLoss",
+        "L21Loss",
+        "Criterion",
+        "MultiLoss",
+        "Regr3D",
+        "ConfLoss",
+        "Regr3D_ShiftInv",
+        "Regr3D_ScaleInv",
+        "Regr3D_ScaleShiftInv"
+      ],
+      "totalLines": 300,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/model.py": {
+      "filePath": "dust3r/model.py",
+      "contentHash": "a24711cd41413922d0bc0e7be01324db6508c788262dd5bcf3f990627e330040",
+      "functions": [
+        {
+          "name": "load_model",
+          "params": [
+            "model_path",
+            "device",
+            "verbose"
+          ],
+          "exported": true,
+          "lineCount": 17
+        }
+      ],
+      "classes": [
+        {
+          "name": "AsymmetricCroCo3DStereo",
+          "methods": [
+            "__init__",
+            "from_pretrained",
+            "_set_patch_embed",
+            "load_state_dict",
+            "set_freeze",
+            "_set_prediction_head",
+            "set_downstream_head",
+            "_encode_image",
+            "_encode_image_pairs",
+            "_encode_symmetrized",
+            "_decoder",
+            "_downstream_head",
+            "forward"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 165
+        }
+      ],
+      "imports": [
+        {
+          "source": "copy",
+          "specifiers": [
+            "deepcopy"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "packaging",
+          "specifiers": [
+            "version"
+          ]
+        },
+        {
+          "source": "huggingface_hub",
+          "specifiers": [
+            "huggingface_hub"
+          ]
+        },
+        {
+          "source": ".utils.misc",
+          "specifiers": [
+            "fill_default_args",
+            "freeze_all_params",
+            "is_symmetrized",
+            "interleave",
+            "transpose_to_landscape"
+          ]
+        },
+        {
+          "source": ".heads",
+          "specifiers": [
+            "head_factory"
+          ]
+        },
+        {
+          "source": "dust3r.patch_embed",
+          "specifiers": [
+            "get_patch_embed"
+          ]
+        },
+        {
+          "source": "dust3r.utils.path_to_croco",
+          "specifiers": [
+            "dust3r.utils.path_to_croco"
+          ]
+        },
+        {
+          "source": "models.croco",
+          "specifiers": [
+            "CroCoNet"
+          ]
+        }
+      ],
+      "exports": [
+        "load_model",
+        "AsymmetricCroCo3DStereo"
+      ],
+      "totalLines": 211,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/optim_factory.py": {
+      "filePath": "dust3r/optim_factory.py",
+      "contentHash": "8241f5857840b8683fb792d6e8350beb1e5710506f040d68b0119920ad9a2d29",
+      "functions": [
+        {
+          "name": "adjust_learning_rate_by_lr",
+          "params": [
+            "optimizer",
+            "lr"
+          ],
+          "exported": true,
+          "lineCount": 6
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "adjust_learning_rate_by_lr"
+      ],
+      "totalLines": 15,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/patch_embed.py": {
+      "filePath": "dust3r/patch_embed.py",
+      "contentHash": "7062ef45e4880416ab89186226db33ed0c6e3494d98d171ba75fe82d1a372922",
+      "functions": [
+        {
+          "name": "get_patch_embed",
+          "params": [
+            "patch_embed_cls",
+            "img_size",
+            "patch_size",
+            "enc_embed_dim"
+          ],
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [
+        {
+          "name": "PatchEmbedDust3R",
+          "methods": [
+            "forward"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "ManyAR_PatchEmbed",
+          "methods": [
+            "__init__",
+            "forward"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 39
+        }
+      ],
+      "imports": [
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "dust3r.utils.path_to_croco",
+          "specifiers": [
+            "dust3r.utils.path_to_croco"
+          ]
+        },
+        {
+          "source": "models.blocks",
+          "specifiers": [
+            "PatchEmbed"
+          ]
+        }
+      ],
+      "exports": [
+        "get_patch_embed",
+        "PatchEmbedDust3R",
+        "ManyAR_PatchEmbed"
+      ],
+      "totalLines": 71,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/post_process.py": {
+      "filePath": "dust3r/post_process.py",
+      "contentHash": "75b7bb57a15fb32896b3c16f362045aafc7d69106a3ec53b4255aaeed355e8b6",
+      "functions": [
+        {
+          "name": "estimate_focal_knowing_depth",
+          "params": [
+            "pts3d",
+            "pp",
+            "focal_mode",
+            "min_focal",
+            "max_focal"
+          ],
+          "exported": true,
+          "lineCount": 49
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "dust3r.utils.geometry",
+          "specifiers": [
+            "xy_grid"
+          ]
+        }
+      ],
+      "exports": [
+        "estimate_focal_knowing_depth"
+      ],
+      "totalLines": 61,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/training.py": {
+      "filePath": "dust3r/training.py",
+      "contentHash": "b5aab5673da0ddea7b8d03173d96494df3bac2b98c85580fcecad7a08858ae22",
+      "functions": [
+        {
+          "name": "get_args_parser",
+          "params": [],
+          "exported": true,
+          "lineCount": 51
+        },
+        {
+          "name": "train",
+          "params": [
+            "args"
+          ],
+          "exported": true,
+          "lineCount": 145
+        },
+        {
+          "name": "save_final_model",
+          "params": [
+            "args",
+            "epoch",
+            "model_without_ddp",
+            "best_so_far"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "build_dataset",
+          "params": [
+            "dataset",
+            "batch_size",
+            "num_workers",
+            "test"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "train_one_epoch",
+          "params": [
+            "model",
+            "criterion",
+            "data_loader",
+            "optimizer",
+            "device",
+            "epoch",
+            "loss_scaler",
+            "args",
+            "log_writer"
+          ],
+          "exported": true,
+          "lineCount": 72
+        },
+        {
+          "name": "test_one_epoch",
+          "params": [
+            "model",
+            "criterion",
+            "data_loader",
+            "device",
+            "epoch",
+            "args",
+            "log_writer",
+            "prefix"
+          ],
+          "exported": true,
+          "lineCount": 36
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "argparse",
+          "specifiers": [
+            "argparse"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "datetime"
+          ]
+        },
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "math",
+          "specifiers": [
+            "math"
+          ]
+        },
+        {
+          "source": "collections",
+          "specifiers": [
+            "defaultdict"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "Sized"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.backends.cudnn",
+          "specifiers": [
+            "cudnn"
+          ]
+        },
+        {
+          "source": "torch.utils.tensorboard",
+          "specifiers": [
+            "SummaryWriter"
+          ]
+        },
+        {
+          "source": "dust3r.model",
+          "specifiers": [
+            "AsymmetricCroCo3DStereo",
+            "inf"
+          ]
+        },
+        {
+          "source": "dust3r.datasets",
+          "specifiers": [
+            "get_data_loader"
+          ]
+        },
+        {
+          "source": "dust3r.losses",
+          "specifiers": [
+            "*"
+          ]
+        },
+        {
+          "source": "dust3r.inference",
+          "specifiers": [
+            "loss_of_one_batch"
+          ]
+        },
+        {
+          "source": "dust3r.utils.path_to_croco",
+          "specifiers": [
+            "dust3r.utils.path_to_croco"
+          ]
+        },
+        {
+          "source": "croco.utils.misc",
+          "specifiers": [
+            "misc"
+          ]
+        },
+        {
+          "source": "croco.utils.misc",
+          "specifiers": [
+            "NativeScaler"
+          ]
+        }
+      ],
+      "exports": [
+        "get_args_parser",
+        "train",
+        "save_final_model",
+        "build_dataset",
+        "train_one_epoch",
+        "test_one_epoch"
+      ],
+      "totalLines": 378,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/utils/__init__.py": {
+      "filePath": "dust3r/utils/__init__.py",
+      "contentHash": "b75338cd2bc70ca0d9dac551d4727a0e11a8098d15a85487691a538d0284c473",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 3,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/utils/device.py": {
+      "filePath": "dust3r/utils/device.py",
+      "contentHash": "43b80cff3f3efefc6642fdad1d0cec6a71bb27ede3110574f1f26f24c855af79",
+      "functions": [
+        {
+          "name": "todevice",
+          "params": [
+            "batch",
+            "device",
+            "callback",
+            "non_blocking"
+          ],
+          "exported": true,
+          "lineCount": 26
+        },
+        {
+          "name": "to_numpy",
+          "params": [
+            "x"
+          ],
+          "exported": true,
+          "lineCount": 1
+        },
+        {
+          "name": "to_cpu",
+          "params": [
+            "x"
+          ],
+          "exported": true,
+          "lineCount": 1
+        },
+        {
+          "name": "to_cuda",
+          "params": [
+            "x"
+          ],
+          "exported": true,
+          "lineCount": 1
+        },
+        {
+          "name": "collate_with_cat",
+          "params": [
+            "whatever",
+            "lists"
+          ],
+          "exported": true,
+          "lineCount": 26
+        },
+        {
+          "name": "listify",
+          "params": [
+            "elems"
+          ],
+          "exported": true,
+          "lineCount": 2
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        }
+      ],
+      "exports": [
+        "todevice",
+        "to_numpy",
+        "to_cpu",
+        "to_cuda",
+        "collate_with_cat",
+        "listify"
+      ],
+      "totalLines": 77,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/utils/geometry.py": {
+      "filePath": "dust3r/utils/geometry.py",
+      "contentHash": "b4f0bb6a03db2f1c2ce2fd35eaa4955f4a30512ad09a3aa45771b88336c8b697",
+      "functions": [
+        {
+          "name": "xy_grid",
+          "params": [
+            "W",
+            "H",
+            "device",
+            "origin",
+            "unsqueeze",
+            "cat_dim",
+            "homogeneous",
+            "**arange_kw"
+          ],
+          "exported": true,
+          "lineCount": 23
+        },
+        {
+          "name": "geotrf",
+          "params": [
+            "Trf",
+            "pts",
+            "ncol",
+            "norm"
+          ],
+          "exported": true,
+          "lineCount": 62
+        },
+        {
+          "name": "inv",
+          "params": [
+            "mat"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "depthmap_to_pts3d",
+          "params": [
+            "depth",
+            "pseudo_focal",
+            "pp",
+            "**_"
+          ],
+          "exported": true,
+          "lineCount": 49
+        },
+        {
+          "name": "depthmap_to_camera_coordinates",
+          "params": [
+            "depthmap",
+            "camera_intrinsics",
+            "pseudo_focal"
+          ],
+          "exported": true,
+          "lineCount": 33
+        },
+        {
+          "name": "depthmap_to_absolute_camera_coordinates",
+          "params": [
+            "depthmap",
+            "camera_intrinsics",
+            "camera_pose",
+            "**kw"
+          ],
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "colmap_to_opencv_intrinsics",
+          "params": [
+            "K"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "opencv_to_colmap_intrinsics",
+          "params": [
+            "K"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "normalize_pointcloud",
+          "params": [
+            "pts1",
+            "pts2",
+            "norm_mode",
+            "valid1",
+            "valid2",
+            "ret_factor"
+          ],
+          "exported": true,
+          "lineCount": 61
+        },
+        {
+          "name": "get_joint_pointcloud_depth",
+          "params": [
+            "z1",
+            "z2",
+            "valid_mask1",
+            "valid_mask2",
+            "quantile"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "get_joint_pointcloud_center_scale",
+          "params": [
+            "pts1",
+            "pts2",
+            "valid_mask1",
+            "valid_mask2",
+            "z_only",
+            "center"
+          ],
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "find_reciprocal_matches",
+          "params": [
+            "P1",
+            "P2"
+          ],
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "get_med_dist_between_poses",
+          "params": [
+            "poses"
+          ],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "scipy.spatial",
+          "specifiers": [
+            "KDTree"
+          ]
+        },
+        {
+          "source": "dust3r.utils.misc",
+          "specifiers": [
+            "invalid_to_zeros",
+            "invalid_to_nans"
+          ]
+        },
+        {
+          "source": "dust3r.utils.device",
+          "specifiers": [
+            "to_numpy"
+          ]
+        }
+      ],
+      "exports": [
+        "xy_grid",
+        "geotrf",
+        "inv",
+        "depthmap_to_pts3d",
+        "depthmap_to_camera_coordinates",
+        "depthmap_to_absolute_camera_coordinates",
+        "colmap_to_opencv_intrinsics",
+        "opencv_to_colmap_intrinsics",
+        "normalize_pointcloud",
+        "get_joint_pointcloud_depth",
+        "get_joint_pointcloud_center_scale",
+        "find_reciprocal_matches",
+        "get_med_dist_between_poses"
+      ],
+      "totalLines": 367,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/utils/image.py": {
+      "filePath": "dust3r/utils/image.py",
+      "contentHash": "3897d7cd49956c59bbb2ba957f3d26ab729fa58133e3b0b809a0571012602385",
+      "functions": [
+        {
+          "name": "img_to_arr",
+          "params": [
+            "img"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "imread_cv2",
+          "params": [
+            "path",
+            "options"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "rgb",
+          "params": [
+            "ftensor",
+            "true_shape"
+          ],
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "_resize_pil_image",
+          "params": [
+            "img",
+            "long_edge_size"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "load_images",
+          "params": [
+            "folder_or_list",
+            "size",
+            "square_ok",
+            "verbose"
+          ],
+          "exported": true,
+          "lineCount": 54
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "PIL.Image",
+          "specifiers": [
+            "PIL.Image"
+          ]
+        },
+        {
+          "source": "PIL.ImageOps",
+          "specifiers": [
+            "exif_transpose"
+          ]
+        },
+        {
+          "source": "torchvision.transforms",
+          "specifiers": [
+            "tvf"
+          ]
+        },
+        {
+          "source": "cv2",
+          "specifiers": [
+            "cv2"
+          ]
+        }
+      ],
+      "exports": [
+        "img_to_arr",
+        "imread_cv2",
+        "rgb",
+        "_resize_pil_image",
+        "load_images"
+      ],
+      "totalLines": 127,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/utils/misc.py": {
+      "filePath": "dust3r/utils/misc.py",
+      "contentHash": "b6bb66f0105be9b0c6bcde3cf679d47382d34c9552990f45c1904dd32b03cddb",
+      "functions": [
+        {
+          "name": "fill_default_args",
+          "params": [
+            "kwargs",
+            "func"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "freeze_all_params",
+          "params": [
+            "modules"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "is_symmetrized",
+          "params": [
+            "gt1",
+            "gt2"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "flip",
+          "params": [
+            "tensor"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "interleave",
+          "params": [
+            "tensor1",
+            "tensor2"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "transpose_to_landscape",
+          "params": [
+            "head",
+            "activate"
+          ],
+          "exported": true,
+          "lineCount": 43
+        },
+        {
+          "name": "transposed",
+          "params": [
+            "dic"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "invalid_to_nans",
+          "params": [
+            "arr",
+            "valid_mask",
+            "ndim"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "invalid_to_zeros",
+          "params": [
+            "arr",
+            "valid_mask",
+            "ndim"
+          ],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        }
+      ],
+      "exports": [
+        "fill_default_args",
+        "freeze_all_params",
+        "is_symmetrized",
+        "flip",
+        "interleave",
+        "transpose_to_landscape",
+        "transposed",
+        "invalid_to_nans",
+        "invalid_to_zeros"
+      ],
+      "totalLines": 122,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/utils/parallel.py": {
+      "filePath": "dust3r/utils/parallel.py",
+      "contentHash": "86b325e1d11a424a3b9b2a1a03c678665b53e2d2b4b51ed56f864fb264ada9c5",
+      "functions": [
+        {
+          "name": "parallel_threads",
+          "params": [
+            "function",
+            "args",
+            "workers",
+            "star_args",
+            "kw_args",
+            "front_num",
+            "Pool",
+            "**tqdm_kw"
+          ],
+          "exported": true,
+          "lineCount": 48
+        },
+        {
+          "name": "parallel_processes",
+          "params": [
+            "*args",
+            "**kwargs"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "starcall",
+          "params": [
+            "args"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "starstarcall",
+          "params": [
+            "args"
+          ],
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "tqdm",
+          "specifiers": [
+            "tqdm"
+          ]
+        },
+        {
+          "source": "multiprocessing.dummy",
+          "specifiers": [
+            "ThreadPool"
+          ]
+        },
+        {
+          "source": "multiprocessing",
+          "specifiers": [
+            "cpu_count"
+          ]
+        }
+      ],
+      "exports": [
+        "parallel_threads",
+        "parallel_processes",
+        "starcall",
+        "starstarcall"
+      ],
+      "totalLines": 80,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/utils/path_to_croco.py": {
+      "filePath": "dust3r/utils/path_to_croco.py",
+      "contentHash": "36920cfbe47773176d8efaf90e1dc64694709eac58d22fb1ed717dd6e28cf44d",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "os.path",
+          "specifiers": [
+            "path"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 20,
+      "hasStructuralAnalysis": true
+    },
+    "dust3r/viz.py": {
+      "filePath": "dust3r/viz.py",
+      "contentHash": "f0dfad3e79bf6b6294cebb59e31baf3c0ebafcc1c1920afac343e31aa59fd1a3",
+      "functions": [
+        {
+          "name": "cat_3d",
+          "params": [
+            "vecs"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "show_raw_pointcloud",
+          "params": [
+            "pts3d",
+            "colors",
+            "point_size"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "pts3d_to_trimesh",
+          "params": [
+            "img",
+            "pts3d",
+            "valid"
+          ],
+          "exported": true,
+          "lineCount": 38
+        },
+        {
+          "name": "cat_meshes",
+          "params": [
+            "meshes"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "show_duster_pairs",
+          "params": [
+            "view1",
+            "view2",
+            "pred1",
+            "pred2"
+          ],
+          "exported": true,
+          "lineCount": 23
+        },
+        {
+          "name": "auto_cam_size",
+          "params": [
+            "im_poses"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "show_raw_pointcloud_with_cams",
+          "params": [
+            "imgs",
+            "pts3d",
+            "mask",
+            "focals",
+            "cams2world",
+            "point_size",
+            "cam_size",
+            "cam_color"
+          ],
+          "exported": true,
+          "lineCount": 32
+        },
+        {
+          "name": "add_scene_cam",
+          "params": [
+            "scene",
+            "pose_c2w",
+            "edge_color",
+            "image",
+            "focal",
+            "imsize",
+            "screen_width",
+            "marker"
+          ],
+          "exported": true,
+          "lineCount": 78
+        },
+        {
+          "name": "cat",
+          "params": [
+            "a",
+            "b"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "uint8",
+          "params": [
+            "colors"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "segment_sky",
+          "params": [
+            "image"
+          ],
+          "exported": true,
+          "lineCount": 37
+        }
+      ],
+      "classes": [
+        {
+          "name": "SceneViz",
+          "methods": [
+            "__init__",
+            "add_rgbd",
+            "add_pointcloud",
+            "add_rgbd",
+            "add_camera",
+            "add_cameras",
+            "show"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 91
+        }
+      ],
+      "imports": [
+        {
+          "source": "PIL.Image",
+          "specifiers": [
+            "PIL.Image"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "scipy.spatial.transform",
+          "specifiers": [
+            "Rotation"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "dust3r.utils.geometry",
+          "specifiers": [
+            "geotrf",
+            "get_med_dist_between_poses",
+            "depthmap_to_absolute_camera_coordinates"
+          ]
+        },
+        {
+          "source": "dust3r.utils.device",
+          "specifiers": [
+            "to_numpy"
+          ]
+        },
+        {
+          "source": "dust3r.utils.image",
+          "specifiers": [
+            "rgb",
+            "img_to_arr"
+          ]
+        }
+      ],
+      "exports": [
+        "cat_3d",
+        "show_raw_pointcloud",
+        "pts3d_to_trimesh",
+        "cat_meshes",
+        "show_duster_pairs",
+        "auto_cam_size",
+        "SceneViz",
+        "show_raw_pointcloud_with_cams",
+        "add_scene_cam",
+        "cat",
+        "uint8",
+        "segment_sky"
+      ],
+      "totalLines": 386,
+      "hasStructuralAnalysis": true
+    },
+    "environment.yml": {
+      "filePath": "environment.yml",
+      "contentHash": "efe63335d6f27ad516770b3b5e309c740a15c2f126c8c547c4f3e22033532ed8",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 79,
+      "hasStructuralAnalysis": true
+    },
+    "gaussian_splatting/__init__.py": {
+      "filePath": "gaussian_splatting/__init__.py",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "gaussian_splatting/gaussian_renderer/__init__.py": {
+      "filePath": "gaussian_splatting/gaussian_renderer/__init__.py",
+      "contentHash": "879e922583c0747d32d43e8c7af677f58046fca53b72b54f0e7afd81130f35d8",
+      "functions": [
+        {
+          "name": "render",
+          "params": [
+            "viewpoint_camera",
+            "pc",
+            "pipe",
+            "bg_color",
+            "scaling_modifier",
+            "override_color",
+            "mask"
+          ],
+          "exported": true,
+          "lineCount": 130
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "math",
+          "specifiers": [
+            "math"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "diff_gaussian_rasterization",
+          "specifiers": [
+            "GaussianRasterizationSettings",
+            "GaussianRasterizer"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.scene.gaussian_model",
+          "specifiers": [
+            "GaussianModel"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.sh_utils",
+          "specifiers": [
+            "eval_sh"
+          ]
+        }
+      ],
+      "exports": [
+        "render"
+      ],
+      "totalLines": 154,
+      "hasStructuralAnalysis": true
+    },
+    "gaussian_splatting/scene/gaussian_model.py": {
+      "filePath": "gaussian_splatting/scene/gaussian_model.py",
+      "contentHash": "d47077c04987611f689d0b01c8fd55c9aa097823216267b67dd24a8f65732c30",
+      "functions": [],
+      "classes": [
+        {
+          "name": "GaussianModel",
+          "methods": [
+            "__init__",
+            "build_covariance_from_scaling_rotation",
+            "get_scaling",
+            "get_rotation",
+            "get_xyz",
+            "get_features",
+            "get_opacity",
+            "get_covariance",
+            "oneupSHdegree",
+            "create_pcd_from_image",
+            "create_pcd_from_image_and_depth",
+            "create_pcd_from_dust3r",
+            "init_lr",
+            "extend_from_pcd",
+            "extend_from_pcd_seq",
+            "training_setup",
+            "update_learning_rate",
+            "construct_list_of_attributes",
+            "save_ply",
+            "reset_opacity",
+            "reset_opacity_nonvisible",
+            "load_ply",
+            "replace_tensor_to_optimizer",
+            "_prune_optimizer",
+            "prune_points",
+            "cat_tensors_to_optimizer",
+            "densification_postfix",
+            "densify_and_split",
+            "densify_and_clone",
+            "densify_and_prune",
+            "add_densification_stats"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 749
+        }
+      ],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "open3d",
+          "specifiers": [
+            "o3d"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "plyfile",
+          "specifiers": [
+            "PlyData",
+            "PlyElement"
+          ]
+        },
+        {
+          "source": "simple_knn._C",
+          "specifiers": [
+            "distCUDA2"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "nn"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.general_utils",
+          "specifiers": [
+            "build_rotation",
+            "build_scaling_rotation",
+            "get_expon_lr_func",
+            "helper",
+            "inverse_sigmoid",
+            "strip_symmetric"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.graphics_utils",
+          "specifiers": [
+            "BasicPointCloud",
+            "getWorld2View2"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.sh_utils",
+          "specifiers": [
+            "RGB2SH"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.system_utils",
+          "specifiers": [
+            "mkdir_p"
+          ]
+        }
+      ],
+      "exports": [
+        "GaussianModel"
+      ],
+      "totalLines": 783,
+      "hasStructuralAnalysis": true
+    },
+    "gaussian_splatting/utils/general_utils.py": {
+      "filePath": "gaussian_splatting/utils/general_utils.py",
+      "contentHash": "4330c3d7e6706963a3282a635f0832cbc4f4c7b7310c9f60902a78941449a99a",
+      "functions": [
+        {
+          "name": "inverse_sigmoid",
+          "params": [
+            "x"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "PILtoTorch",
+          "params": [
+            "pil_image",
+            "resolution"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "PILtoTorch2",
+          "params": [
+            "pil_image"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "get_expon_lr_func",
+          "params": [
+            "lr_init",
+            "lr_final",
+            "lr_delay_steps",
+            "lr_delay_mult",
+            "max_steps"
+          ],
+          "exported": true,
+          "lineCount": 35
+        },
+        {
+          "name": "helper",
+          "params": [
+            "step",
+            "lr_init",
+            "lr_final",
+            "lr_delay_steps",
+            "lr_delay_mult",
+            "max_steps"
+          ],
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "strip_lowerdiag",
+          "params": [
+            "L"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "strip_symmetric",
+          "params": [
+            "sym"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "build_rotation",
+          "params": [
+            "r"
+          ],
+          "exported": true,
+          "lineCount": 24
+        },
+        {
+          "name": "build_scaling_rotation",
+          "params": [
+            "s",
+            "r"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "safe_state",
+          "params": [
+            "silent"
+          ],
+          "exported": true,
+          "lineCount": 30
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "random",
+          "specifiers": [
+            "random"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "datetime"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        }
+      ],
+      "exports": [
+        "inverse_sigmoid",
+        "PILtoTorch",
+        "PILtoTorch2",
+        "get_expon_lr_func",
+        "helper",
+        "strip_lowerdiag",
+        "strip_symmetric",
+        "build_rotation",
+        "build_scaling_rotation",
+        "safe_state"
+      ],
+      "totalLines": 181,
+      "hasStructuralAnalysis": true
+    },
+    "gaussian_splatting/utils/graphics_utils.py": {
+      "filePath": "gaussian_splatting/utils/graphics_utils.py",
+      "contentHash": "f9cb3b6fc837b81569d8ad745504d05c8bdd13299db464d7102c7e61489df275",
+      "functions": [
+        {
+          "name": "getWorld2View",
+          "params": [
+            "R",
+            "t"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "getWorld2View2",
+          "params": [
+            "R",
+            "t",
+            "translate",
+            "scale"
+          ],
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "getProjectionMatrix",
+          "params": [
+            "znear",
+            "zfar",
+            "fovX",
+            "fovY"
+          ],
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "getProjectionMatrix2",
+          "params": [
+            "znear",
+            "zfar",
+            "cx",
+            "cy",
+            "fx",
+            "fy",
+            "W",
+            "H"
+          ],
+          "exported": true,
+          "lineCount": 22
+        },
+        {
+          "name": "fov2focal",
+          "params": [
+            "fov",
+            "pixels"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "focal2fov",
+          "params": [
+            "focal",
+            "pixels"
+          ],
+          "exported": true,
+          "lineCount": 2
+        }
+      ],
+      "classes": [
+        {
+          "name": "BasicPointCloud",
+          "methods": [],
+          "properties": [
+            "points",
+            "colors",
+            "normals"
+          ],
+          "exported": true,
+          "lineCount": 4
+        }
+      ],
+      "imports": [
+        {
+          "source": "math",
+          "specifiers": [
+            "math"
+          ]
+        },
+        {
+          "source": "typing",
+          "specifiers": [
+            "NamedTuple"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        }
+      ],
+      "exports": [
+        "BasicPointCloud",
+        "getWorld2View",
+        "getWorld2View2",
+        "getProjectionMatrix",
+        "getProjectionMatrix2",
+        "fov2focal",
+        "focal2fov"
+      ],
+      "totalLines": 96,
+      "hasStructuralAnalysis": true
+    },
+    "gaussian_splatting/utils/image_utils.py": {
+      "filePath": "gaussian_splatting/utils/image_utils.py",
+      "contentHash": "6ab8928540df890e7eabaac71504fff041a12d011335ff34f33d0ff5893cd8f0",
+      "functions": [
+        {
+          "name": "mse",
+          "params": [
+            "img1",
+            "img2"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "psnr",
+          "params": [
+            "img1",
+            "img2"
+          ],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        }
+      ],
+      "exports": [
+        "mse",
+        "psnr"
+      ],
+      "totalLines": 22,
+      "hasStructuralAnalysis": true
+    },
+    "gaussian_splatting/utils/loss_utils.py": {
+      "filePath": "gaussian_splatting/utils/loss_utils.py",
+      "contentHash": "9ba844d711ab8eb9110129639bc6ffd8ce79aa4f38deca460c8f2ef0971175af",
+      "functions": [
+        {
+          "name": "l1_loss",
+          "params": [
+            "network_output",
+            "gt"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "l1_loss_weight",
+          "params": [
+            "network_output",
+            "gt"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "l2_loss",
+          "params": [
+            "network_output",
+            "gt"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "gaussian",
+          "params": [
+            "window_size",
+            "sigma"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "create_window",
+          "params": [
+            "window_size",
+            "channel"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "ssim",
+          "params": [
+            "img1",
+            "img2",
+            "window_size",
+            "size_average"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "_ssim",
+          "params": [
+            "img1",
+            "img2",
+            "window",
+            "window_size",
+            "channel",
+            "size_average"
+          ],
+          "exported": true,
+          "lineCount": 30
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "math",
+          "specifiers": [
+            "exp"
+          ]
+        },
+        {
+          "source": "cv2",
+          "specifiers": [
+            "cv2"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.nn.functional",
+          "specifiers": [
+            "F"
+          ]
+        },
+        {
+          "source": "torch.autograd",
+          "specifiers": [
+            "Variable"
+          ]
+        }
+      ],
+      "exports": [
+        "l1_loss",
+        "l1_loss_weight",
+        "l2_loss",
+        "gaussian",
+        "create_window",
+        "ssim",
+        "_ssim"
+      ],
+      "totalLines": 102,
+      "hasStructuralAnalysis": true
+    },
+    "gaussian_splatting/utils/sh_utils.py": {
+      "filePath": "gaussian_splatting/utils/sh_utils.py",
+      "contentHash": "7db79c605c1fe474a4bf964233d3afb4c9c35186dc1f2f90fe9ba1bcdbafd72b",
+      "functions": [
+        {
+          "name": "eval_sh",
+          "params": [
+            "deg",
+            "sh",
+            "dirs"
+          ],
+          "exported": true,
+          "lineCount": 64
+        },
+        {
+          "name": "RGB2SH",
+          "params": [
+            "rgb"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "SH2RGB",
+          "params": [
+            "sh"
+          ],
+          "exported": true,
+          "lineCount": 2
+        }
+      ],
+      "classes": [],
+      "imports": [],
+      "exports": [
+        "eval_sh",
+        "RGB2SH",
+        "SH2RGB"
+      ],
+      "totalLines": 127,
+      "hasStructuralAnalysis": true
+    },
+    "gaussian_splatting/utils/system_utils.py": {
+      "filePath": "gaussian_splatting/utils/system_utils.py",
+      "contentHash": "8b906d4fe5d7a8dea3ec1b86ab3b512c645ef9ff483c3990612549b0443c3c42",
+      "functions": [
+        {
+          "name": "mkdir_p",
+          "params": [
+            "folder_path"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "searchForMaxIteration",
+          "params": [
+            "folder"
+          ],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "errno",
+          "specifiers": [
+            "EEXIST"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "makedirs",
+            "path"
+          ]
+        }
+      ],
+      "exports": [
+        "mkdir_p",
+        "searchForMaxIteration"
+      ],
+      "totalLines": 31,
+      "hasStructuralAnalysis": true
+    },
+    "gui/gl_render/__init__.py": {
+      "filePath": "gui/gl_render/__init__.py",
+      "contentHash": "4b7fb7adf68ad14438dea52ba330df345e5e8ab8f5853b361bc38ad2df281c28",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": ".",
+          "specifiers": [
+            "render_ogl",
+            "util",
+            "util_gau"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 2,
+      "hasStructuralAnalysis": true
+    },
+    "gui/gl_render/render_ogl.py": {
+      "filePath": "gui/gl_render/render_ogl.py",
+      "contentHash": "057e8825956ffc24d0262cd199442a4a92576ab855ef1d2acc9e1e282511de7b",
+      "functions": [
+        {
+          "name": "_sort_gaussian_torch",
+          "params": [
+            "gaus",
+            "view_mat"
+          ],
+          "exported": true,
+          "lineCount": 13
+        }
+      ],
+      "classes": [
+        {
+          "name": "GaussianRenderBase",
+          "methods": [
+            "__init__",
+            "update_gaussian_data",
+            "sort_and_update",
+            "set_scale_modifier",
+            "set_render_mod",
+            "update_camera_pose",
+            "update_camera_intrin",
+            "draw",
+            "set_render_reso"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 27
+        },
+        {
+          "name": "OpenGLRenderer",
+          "methods": [
+            "__init__",
+            "update_gaussian_data",
+            "sort_and_update",
+            "set_scale_modifier",
+            "set_render_mod",
+            "set_render_reso",
+            "update_camera_pose",
+            "update_camera_intrin",
+            "draw"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 74
+        }
+      ],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "OpenGL",
+          "specifiers": [
+            "gl"
+          ]
+        },
+        {
+          "source": ".",
+          "specifiers": [
+            "util",
+            "util_gau"
+          ]
+        }
+      ],
+      "exports": [
+        "_sort_gaussian_torch",
+        "GaussianRenderBase",
+        "OpenGLRenderer"
+      ],
+      "totalLines": 138,
+      "hasStructuralAnalysis": true
+    },
+    "gui/gl_render/shaders/gau_frag.glsl": {
+      "filePath": "gui/gl_render/shaders/gau_frag.glsl",
+      "contentHash": "eee1f7b85fef3f20b0640c44f69bd88d5e8c8fbd148c5861827eba2ba05e3daf",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 37,
+      "hasStructuralAnalysis": false
+    },
+    "gui/gl_render/shaders/gau_vert.glsl": {
+      "filePath": "gui/gl_render/shaders/gau_vert.glsl",
+      "contentHash": "57523d02f02fca824e08ecfb6e77e9c36d0b0240a7ca8dfde723c6f7e216207e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 212,
+      "hasStructuralAnalysis": false
+    },
+    "gui/gl_render/util.py": {
+      "filePath": "gui/gl_render/util.py",
+      "contentHash": "6d70f17046c7b01f45e7cd92564891ddcfd5a2b8ce9f6356ac56bf2abed3be55",
+      "functions": [
+        {
+          "name": "load_shaders",
+          "params": [
+            "vs",
+            "fs"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "compile_shaders",
+          "params": [
+            "vertex_shader",
+            "fragment_shader"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "set_attributes",
+          "params": [
+            "program",
+            "keys",
+            "values",
+            "vao",
+            "buffer_ids"
+          ],
+          "exported": true,
+          "lineCount": 21
+        },
+        {
+          "name": "set_attribute",
+          "params": [
+            "program",
+            "key",
+            "value",
+            "vao",
+            "buffer_id"
+          ],
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "set_attribute_instanced",
+          "params": [
+            "program",
+            "key",
+            "value",
+            "instance_stride",
+            "vao",
+            "buffer_id"
+          ],
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "set_storage_buffer_data",
+          "params": [
+            "program",
+            "key",
+            "value",
+            "bind_idx",
+            "vao",
+            "buffer_id"
+          ],
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "set_faces_tovao",
+          "params": [
+            "vao",
+            "faces"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "set_gl_bindings",
+          "params": [
+            "vertices",
+            "faces"
+          ],
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "set_uniform_mat4",
+          "params": [
+            "shader",
+            "content",
+            "name"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "set_uniform_1f",
+          "params": [
+            "shader",
+            "content",
+            "name"
+          ],
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "set_uniform_1int",
+          "params": [
+            "shader",
+            "content",
+            "name"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "set_uniform_v3f",
+          "params": [
+            "shader",
+            "contents",
+            "name"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "set_uniform_v3",
+          "params": [
+            "shader",
+            "contents",
+            "name"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "set_uniform_v1f",
+          "params": [
+            "shader",
+            "contents",
+            "name"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "set_uniform_v2",
+          "params": [
+            "shader",
+            "contents",
+            "name"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "set_texture2d",
+          "params": [
+            "img",
+            "texid"
+          ],
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "update_texture2d",
+          "params": [
+            "img",
+            "texid",
+            "offset"
+          ],
+          "exported": true,
+          "lineCount": 5
+        }
+      ],
+      "classes": [
+        {
+          "name": "Camera",
+          "methods": [
+            "__init__",
+            "_global_rot_mat",
+            "get_view_matrix",
+            "get_project_matrix",
+            "get_htanfovxy_focal",
+            "get_focal",
+            "flip_ground",
+            "update_target_distance",
+            "update_resolution"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 76
+        }
+      ],
+      "imports": [
+        {
+          "source": "glm",
+          "specifiers": [
+            "glm"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "OpenGL.GL.shaders",
+          "specifiers": [
+            "shaders"
+          ]
+        },
+        {
+          "source": "OpenGL.GL",
+          "specifiers": [
+            "*"
+          ]
+        }
+      ],
+      "exports": [
+        "Camera",
+        "load_shaders",
+        "compile_shaders",
+        "set_attributes",
+        "set_attribute",
+        "set_attribute_instanced",
+        "set_storage_buffer_data",
+        "set_faces_tovao",
+        "set_gl_bindings",
+        "set_uniform_mat4",
+        "set_uniform_1f",
+        "set_uniform_1int",
+        "set_uniform_v3f",
+        "set_uniform_v3",
+        "set_uniform_v1f",
+        "set_uniform_v2",
+        "set_texture2d",
+        "update_texture2d"
+      ],
+      "totalLines": 277,
+      "hasStructuralAnalysis": true
+    },
+    "gui/gl_render/util_gau.py": {
+      "filePath": "gui/gl_render/util_gau.py",
+      "contentHash": "b69654cf773754d47dccebeff6800cb32335fb137830f65657648a8f3c8d044c",
+      "functions": [],
+      "classes": [
+        {
+          "name": "GaussianData",
+          "methods": [
+            "flat",
+            "__len__",
+            "sh_dim"
+          ],
+          "properties": [
+            "xyz",
+            "rot",
+            "scale",
+            "opacity",
+            "sh"
+          ],
+          "exported": true,
+          "lineCount": 19
+        }
+      ],
+      "imports": [
+        {
+          "source": "dataclasses",
+          "specifiers": [
+            "dataclass"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        }
+      ],
+      "exports": [
+        "GaussianData"
+      ],
+      "totalLines": 26,
+      "hasStructuralAnalysis": true
+    },
+    "gui/gui_utils.py": {
+      "filePath": "gui/gui_utils.py",
+      "contentHash": "e1e1b2a6ffa80b5f09f66f076058aac6a491eb31014cc7826ed835bff175921b",
+      "functions": [
+        {
+          "name": "create_frustum",
+          "params": [
+            "pose",
+            "frusutum_color",
+            "size"
+          ],
+          "exported": true,
+          "lineCount": 24
+        },
+        {
+          "name": "get_latest_queue",
+          "params": [
+            "q"
+          ],
+          "exported": true,
+          "lineCount": 12
+        }
+      ],
+      "classes": [
+        {
+          "name": "Frustum",
+          "methods": [
+            "__init__",
+            "update_pose"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 33
+        },
+        {
+          "name": "GaussianPacket",
+          "methods": [
+            "__init__",
+            "resize_img",
+            "get_covariance",
+            "build_covariance_from_scaling_rotation"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 65
+        },
+        {
+          "name": "Packet_vis2main",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "ParamsGUI",
+          "methods": [
+            "__init__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 14
+        }
+      ],
+      "imports": [
+        {
+          "source": "queue",
+          "specifiers": [
+            "queue"
+          ]
+        },
+        {
+          "source": "cv2",
+          "specifiers": [
+            "cv2"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "open3d",
+          "specifiers": [
+            "o3d"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.general_utils",
+          "specifiers": [
+            "build_scaling_rotation",
+            "strip_symmetric"
+          ]
+        }
+      ],
+      "exports": [
+        "Frustum",
+        "create_frustum",
+        "GaussianPacket",
+        "get_latest_queue",
+        "Packet_vis2main",
+        "ParamsGUI"
+      ],
+      "totalLines": 176,
+      "hasStructuralAnalysis": true
+    },
+    "gui/slam_gui.py": {
+      "filePath": "gui/slam_gui.py",
+      "contentHash": "2a6e8301de31675272ccf3a8a3c218e2c7ad0094394c8e117ee6902a5b1a07b0",
+      "functions": [
+        {
+          "name": "run",
+          "params": [
+            "params_gui"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "main",
+          "params": [],
+          "exported": true,
+          "lineCount": 5
+        }
+      ],
+      "classes": [
+        {
+          "name": "SLAM_GUI",
+          "methods": [
+            "__init__",
+            "init_widget",
+            "init_glfw",
+            "update_activated_renderer_state",
+            "add_camera",
+            "_on_layout",
+            "_on_close",
+            "_on_combo_model",
+            "_on_combo_kf",
+            "_on_cameras_chbox",
+            "_on_axis_chbox",
+            "_on_kf_window_chbox",
+            "_on_button",
+            "_on_slider",
+            "_on_render_btn",
+            "_on_screenshot_btn",
+            "resize_img",
+            "add_ids",
+            "receive_data",
+            "depth_to_normal",
+            "vfov_to_hfov",
+            "get_current_cam",
+            "rasterise",
+            "render_o3d_image",
+            "render_gui",
+            "scene_update",
+            "_update_thread"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 648
+        }
+      ],
+      "imports": [
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "pathlib"
+          ]
+        },
+        {
+          "source": "threading",
+          "specifiers": [
+            "threading"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "datetime"
+          ]
+        },
+        {
+          "source": "cv2",
+          "specifiers": [
+            "cv2"
+          ]
+        },
+        {
+          "source": "glfw",
+          "specifiers": [
+            "glfw"
+          ]
+        },
+        {
+          "source": "imgviz",
+          "specifiers": [
+            "imgviz"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "open3d",
+          "specifiers": [
+            "o3d"
+          ]
+        },
+        {
+          "source": "open3d.visualization.gui",
+          "specifiers": [
+            "gui"
+          ]
+        },
+        {
+          "source": "open3d.visualization.rendering",
+          "specifiers": [
+            "rendering"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.nn.functional",
+          "specifiers": [
+            "F"
+          ]
+        },
+        {
+          "source": "OpenGL",
+          "specifiers": [
+            "gl"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.gaussian_renderer",
+          "specifiers": [
+            "render"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.graphics_utils",
+          "specifiers": [
+            "fov2focal",
+            "getWorld2View2"
+          ]
+        },
+        {
+          "source": "gui.gl_render",
+          "specifiers": [
+            "util",
+            "util_gau"
+          ]
+        },
+        {
+          "source": "gui.gl_render.render_ogl",
+          "specifiers": [
+            "OpenGLRenderer"
+          ]
+        },
+        {
+          "source": "gui.gui_utils",
+          "specifiers": [
+            "GaussianPacket",
+            "Packet_vis2main",
+            "create_frustum",
+            "cv_gl",
+            "get_latest_queue"
+          ]
+        },
+        {
+          "source": "utils.camera_utils",
+          "specifiers": [
+            "Camera"
+          ]
+        },
+        {
+          "source": "utils.logging_utils",
+          "specifiers": [
+            "Log"
+          ]
+        }
+      ],
+      "exports": [
+        "SLAM_GUI",
+        "run",
+        "main"
+      ],
+      "totalLines": 700,
+      "hasStructuralAnalysis": true
+    },
+    "readme.md": {
+      "filePath": "readme.md",
+      "contentHash": "51226ec0355bdcd36c7e031dcf38bd7f90bcb4c7172176167d1fc05c71446e84",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 128,
+      "hasStructuralAnalysis": true
+    },
+    "run_waymo.sh": {
+      "filePath": "run_waymo.sh",
+      "contentHash": "6d0c11d2866fd283c616b156b01f54941e564c5459d68506bb65fe0867952ae9",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 23,
+      "hasStructuralAnalysis": true
+    },
+    "slam.py": {
+      "filePath": "slam.py",
+      "contentHash": "09ff41389dab6cdaffdd37661eee86286b9b04005ee8e0f2ddc103dc442b14c5",
+      "functions": [],
+      "classes": [
+        {
+          "name": "SLAM",
+          "methods": [
+            "__init__",
+            "run"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 180
+        }
+      ],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "glob",
+          "specifiers": [
+            "glob"
+          ]
+        },
+        {
+          "source": "sys",
+          "specifiers": [
+            "sys"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "argparse",
+          "specifiers": [
+            "ArgumentParser"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "datetime"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.multiprocessing",
+          "specifiers": [
+            "mp"
+          ]
+        },
+        {
+          "source": "yaml",
+          "specifiers": [
+            "yaml"
+          ]
+        },
+        {
+          "source": "munch",
+          "specifiers": [
+            "munchify"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "wandb",
+          "specifiers": [
+            "wandb"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.scene.gaussian_model",
+          "specifiers": [
+            "GaussianModel"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.system_utils",
+          "specifiers": [
+            "mkdir_p"
+          ]
+        },
+        {
+          "source": "gui",
+          "specifiers": [
+            "gui_utils",
+            "slam_gui"
+          ]
+        },
+        {
+          "source": "utils.config_utils",
+          "specifiers": [
+            "load_config"
+          ]
+        },
+        {
+          "source": "utils.dataset",
+          "specifiers": [
+            "load_dataset"
+          ]
+        },
+        {
+          "source": "utils.eval_utils",
+          "specifiers": [
+            "eval_ate",
+            "eval_rendering",
+            "save_gaussians"
+          ]
+        },
+        {
+          "source": "utils.logging_utils",
+          "specifiers": [
+            "Log"
+          ]
+        },
+        {
+          "source": "utils.multiprocessing_utils",
+          "specifiers": [
+            "FakeQueue"
+          ]
+        },
+        {
+          "source": "utils.slam_backend",
+          "specifiers": [
+            "BackEnd"
+          ]
+        },
+        {
+          "source": "utils.slam_frontend",
+          "specifiers": [
+            "FrontEnd"
+          ]
+        },
+        {
+          "source": "dust3r.model",
+          "specifiers": [
+            "AsymmetricCroCo3DStereo"
+          ]
+        }
+      ],
+      "exports": [
+        "SLAM"
+      ],
+      "totalLines": 281,
+      "hasStructuralAnalysis": true
+    },
+    "utils/camera_utils.py": {
+      "filePath": "utils/camera_utils.py",
+      "contentHash": "0670e9853378d0e74bb9fafa6d8d3567c703a2e8725626677f1cc09c1eb68bd4",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Camera",
+          "methods": [
+            "__init__",
+            "init_from_dataset",
+            "init_from_gui",
+            "world_view_transform",
+            "full_proj_transform",
+            "camera_center",
+            "update_RT",
+            "compute_grad_mask",
+            "clean"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 147
+        }
+      ],
+      "imports": [
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "nn"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.graphics_utils",
+          "specifiers": [
+            "getProjectionMatrix2",
+            "getWorld2View2"
+          ]
+        },
+        {
+          "source": "utils.slam_utils",
+          "specifiers": [
+            "image_gradient",
+            "image_gradient_mask"
+          ]
+        }
+      ],
+      "exports": [
+        "Camera"
+      ],
+      "totalLines": 155,
+      "hasStructuralAnalysis": true
+    },
+    "utils/config_utils.py": {
+      "filePath": "utils/config_utils.py",
+      "contentHash": "6ec7a89c69b3d69f4876c5423c51063cb0242bbef0a9353736fdf52335c62fae",
+      "functions": [
+        {
+          "name": "load_config",
+          "params": [
+            "path",
+            "default_path"
+          ],
+          "exported": true,
+          "lineCount": 30
+        },
+        {
+          "name": "update_recursive",
+          "params": [
+            "dict1",
+            "dict2"
+          ],
+          "exported": true,
+          "lineCount": 15
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "yaml",
+          "specifiers": [
+            "yaml"
+          ]
+        }
+      ],
+      "exports": [
+        "load_config",
+        "update_recursive"
+      ],
+      "totalLines": 51,
+      "hasStructuralAnalysis": true
+    },
+    "utils/dataset.py": {
+      "filePath": "utils/dataset.py",
+      "contentHash": "e5bd7b4a2c4aca0413011bb45aeb48ec451ec9adef9f5c482a9ccc0ebcd19e4b",
+      "functions": [
+        {
+          "name": "load_dataset",
+          "params": [
+            "args",
+            "path",
+            "config"
+          ],
+          "exported": true,
+          "lineCount": 13
+        }
+      ],
+      "classes": [
+        {
+          "name": "WaymoParser",
+          "methods": [
+            "__init__",
+            "load_poses"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 23
+        },
+        {
+          "name": "ReplicaParser",
+          "methods": [
+            "__init__",
+            "load_poses"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 27
+        },
+        {
+          "name": "TUMParser",
+          "methods": [
+            "__init__",
+            "parse_list",
+            "associate_frames",
+            "load_poses"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 75
+        },
+        {
+          "name": "EuRoCParser",
+          "methods": [
+            "__init__",
+            "associate",
+            "load_poses"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 66
+        },
+        {
+          "name": "BaseDataset",
+          "methods": [
+            "__init__",
+            "__len__",
+            "__getitem__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "MonocularDataset",
+          "methods": [
+            "__init__",
+            "__getitem__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 70
+        },
+        {
+          "name": "StereoDataset",
+          "methods": [
+            "__init__",
+            "__getitem__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 113
+        },
+        {
+          "name": "WaymoDataset",
+          "methods": [
+            "__init__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "TUMDataset",
+          "methods": [
+            "__init__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "ReplicaDataset",
+          "methods": [
+            "__init__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "EurocDataset",
+          "methods": [
+            "__init__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "RealsenseDataset",
+          "methods": [
+            "__init__",
+            "__getitem__"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 91
+        }
+      ],
+      "imports": [
+        {
+          "source": "csv",
+          "specifiers": [
+            "csv"
+          ]
+        },
+        {
+          "source": "glob",
+          "specifiers": [
+            "glob"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "cv2",
+          "specifiers": [
+            "cv2"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "trimesh",
+          "specifiers": [
+            "trimesh"
+          ]
+        },
+        {
+          "source": "PIL",
+          "specifiers": [
+            "Image"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.graphics_utils",
+          "specifiers": [
+            "focal2fov"
+          ]
+        }
+      ],
+      "exports": [
+        "WaymoParser",
+        "ReplicaParser",
+        "TUMParser",
+        "EuRoCParser",
+        "BaseDataset",
+        "MonocularDataset",
+        "StereoDataset",
+        "WaymoDataset",
+        "TUMDataset",
+        "ReplicaDataset",
+        "EurocDataset",
+        "RealsenseDataset",
+        "load_dataset"
+      ],
+      "totalLines": 578,
+      "hasStructuralAnalysis": true
+    },
+    "utils/dust3r_utils.py": {
+      "filePath": "utils/dust3r_utils.py",
+      "contentHash": "0d0cf3c61b435478d12f659293b665ed2121cabe72fe2a8ce0037d13ebc363dd",
+      "functions": [
+        {
+          "name": "_resize_pil_image",
+          "params": [
+            "img",
+            "long_edge_size"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "torch_images_to_dust3r_format",
+          "params": [
+            "tensor_images",
+            "size",
+            "square_ok",
+            "verbose"
+          ],
+          "exported": true,
+          "lineCount": 45
+        },
+        {
+          "name": "get_result",
+          "params": [
+            "img1",
+            "img2",
+            "model",
+            "device",
+            "batch_size",
+            "niter",
+            "schedule",
+            "lr"
+          ],
+          "exported": true,
+          "lineCount": 37
+        },
+        {
+          "name": "get_scale",
+          "params": [
+            "matches_im1_0",
+            "matches_im1_1",
+            "matches_im2_0",
+            "matches_im2_1",
+            "matches_3d1_0",
+            "matches_3d2_1"
+          ],
+          "exported": true,
+          "lineCount": 56
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "PIL.Image",
+          "specifiers": [
+            "PIL.Image"
+          ]
+        },
+        {
+          "source": "PIL",
+          "specifiers": [
+            "PIL"
+          ]
+        },
+        {
+          "source": "PIL.ImageOps",
+          "specifiers": [
+            "exif_transpose"
+          ]
+        },
+        {
+          "source": "torchvision.transforms",
+          "specifiers": [
+            "tvf"
+          ]
+        },
+        {
+          "source": "cv2",
+          "specifiers": [
+            "cv2"
+          ]
+        },
+        {
+          "source": "open3d",
+          "specifiers": [
+            "o3d"
+          ]
+        },
+        {
+          "source": "random",
+          "specifiers": [
+            "random"
+          ]
+        },
+        {
+          "source": "dust3r.inference",
+          "specifiers": [
+            "inference"
+          ]
+        },
+        {
+          "source": "dust3r.model",
+          "specifiers": [
+            "AsymmetricCroCo3DStereo"
+          ]
+        },
+        {
+          "source": "dust3r.utils.image",
+          "specifiers": [
+            "load_images"
+          ]
+        },
+        {
+          "source": "dust3r.image_pairs",
+          "specifiers": [
+            "make_pairs"
+          ]
+        },
+        {
+          "source": "dust3r.cloud_opt",
+          "specifiers": [
+            "global_aligner",
+            "GlobalAlignerMode"
+          ]
+        },
+        {
+          "source": "dust3r.utils.geometry",
+          "specifiers": [
+            "find_reciprocal_matches",
+            "xy_grid"
+          ]
+        }
+      ],
+      "exports": [
+        "_resize_pil_image",
+        "torch_images_to_dust3r_format",
+        "get_result",
+        "get_scale"
+      ],
+      "totalLines": 186,
+      "hasStructuralAnalysis": true
+    },
+    "utils/eval_utils.py": {
+      "filePath": "utils/eval_utils.py",
+      "contentHash": "31774250e363321a9dc13cd6459eb4f87f29489b02b431817d75fcdf56ecc0f6",
+      "functions": [
+        {
+          "name": "evaluate_evo",
+          "params": [
+            "poses_gt",
+            "poses_est",
+            "plot_dir",
+            "label",
+            "monocular"
+          ],
+          "exported": true,
+          "lineCount": 47
+        },
+        {
+          "name": "eval_ate",
+          "params": [
+            "frames",
+            "kf_ids",
+            "save_dir",
+            "iterations",
+            "final",
+            "monocular",
+            "BA"
+          ],
+          "exported": true,
+          "lineCount": 55
+        },
+        {
+          "name": "eval_rendering",
+          "params": [
+            "frames",
+            "gaussians",
+            "dataset",
+            "save_dir",
+            "pipe",
+            "background",
+            "kf_indices",
+            "iteration"
+          ],
+          "exported": true,
+          "lineCount": 113
+        },
+        {
+          "name": "save_gaussians",
+          "params": [
+            "gaussians",
+            "name",
+            "iteration",
+            "final"
+          ],
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "json",
+          "specifiers": [
+            "json"
+          ]
+        },
+        {
+          "source": "os",
+          "specifiers": [
+            "os"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "matplotlib",
+          "specifiers": [
+            "matplotlib"
+          ]
+        },
+        {
+          "source": "cv2",
+          "specifiers": [
+            "cv2"
+          ]
+        },
+        {
+          "source": "evo",
+          "specifiers": [
+            "evo"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "PIL",
+          "specifiers": [
+            "Image"
+          ]
+        },
+        {
+          "source": "evo.core",
+          "specifiers": [
+            "metrics",
+            "trajectory"
+          ]
+        },
+        {
+          "source": "evo.core.metrics",
+          "specifiers": [
+            "PoseRelation",
+            "Unit"
+          ]
+        },
+        {
+          "source": "evo.core.trajectory",
+          "specifiers": [
+            "PosePath3D",
+            "PoseTrajectory3D"
+          ]
+        },
+        {
+          "source": "evo.tools",
+          "specifiers": [
+            "plot"
+          ]
+        },
+        {
+          "source": "evo.tools.plot",
+          "specifiers": [
+            "PlotMode"
+          ]
+        },
+        {
+          "source": "evo.tools.settings",
+          "specifiers": [
+            "SETTINGS"
+          ]
+        },
+        {
+          "source": "matplotlib",
+          "specifiers": [
+            "plt"
+          ]
+        },
+        {
+          "source": "torchmetrics.image.lpip",
+          "specifiers": [
+            "LearnedPerceptualImagePatchSimilarity"
+          ]
+        },
+        {
+          "source": "wandb",
+          "specifiers": [
+            "wandb"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.gaussian_renderer",
+          "specifiers": [
+            "render"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.image_utils",
+          "specifiers": [
+            "psnr"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.loss_utils",
+          "specifiers": [
+            "ssim"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.system_utils",
+          "specifiers": [
+            "mkdir_p"
+          ]
+        },
+        {
+          "source": "utils.logging_utils",
+          "specifiers": [
+            "Log"
+          ]
+        }
+      ],
+      "exports": [
+        "evaluate_evo",
+        "eval_ate",
+        "eval_rendering",
+        "save_gaussians"
+      ],
+      "totalLines": 260,
+      "hasStructuralAnalysis": true
+    },
+    "utils/logging_utils.py": {
+      "filePath": "utils/logging_utils.py",
+      "contentHash": "fc1bc6ee281bd9dbcd3f2e90112c3573cf2e35d9e31e93baaab053a6dd2f6381",
+      "functions": [
+        {
+          "name": "get_style",
+          "params": [
+            "tag"
+          ],
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "Log",
+          "params": [
+            "*args",
+            "tag"
+          ],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "rich",
+          "specifiers": [
+            "rich"
+          ]
+        }
+      ],
+      "exports": [
+        "get_style",
+        "Log"
+      ],
+      "totalLines": 19,
+      "hasStructuralAnalysis": true
+    },
+    "utils/multiprocessing_utils.py": {
+      "filePath": "utils/multiprocessing_utils.py",
+      "contentHash": "dfc496411d06dd90b47bca99a549cc36062218231ae8b6822f58792d5bc24a60",
+      "functions": [
+        {
+          "name": "clone_obj",
+          "params": [
+            "obj"
+          ],
+          "exported": true,
+          "lineCount": 11
+        }
+      ],
+      "classes": [
+        {
+          "name": "FakeQueue",
+          "methods": [
+            "put",
+            "get_nowait",
+            "qsize",
+            "empty"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 12
+        }
+      ],
+      "imports": [
+        {
+          "source": "copy",
+          "specifiers": [
+            "copy"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.multiprocessing",
+          "specifiers": [
+            "mp"
+          ]
+        }
+      ],
+      "exports": [
+        "FakeQueue",
+        "clone_obj"
+      ],
+      "totalLines": 32,
+      "hasStructuralAnalysis": true
+    },
+    "utils/pose_utils.py": {
+      "filePath": "utils/pose_utils.py",
+      "contentHash": "04f6efeffa20b07f587c97b1a987a4d175315df47beae25b3310623b07108583",
+      "functions": [
+        {
+          "name": "rt2mat",
+          "params": [
+            "R",
+            "T"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "skew_sym_mat",
+          "params": [
+            "x"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "SO3_exp",
+          "params": [
+            "theta"
+          ],
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "V",
+          "params": [
+            "theta"
+          ],
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "SE3_exp",
+          "params": [
+            "tau"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "update_pose",
+          "params": [
+            "camera",
+            "converged_threshold"
+          ],
+          "exported": true,
+          "lineCount": 18
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        }
+      ],
+      "exports": [
+        "rt2mat",
+        "skew_sym_mat",
+        "SO3_exp",
+        "V",
+        "SE3_exp",
+        "update_pose"
+      ],
+      "totalLines": 88,
+      "hasStructuralAnalysis": true
+    },
+    "utils/slam_backend.py": {
+      "filePath": "utils/slam_backend.py",
+      "contentHash": "b845d9153148d3152a7f389182c4574e8cc1625e3fd63937a04a3b4790cebe16",
+      "functions": [],
+      "classes": [
+        {
+          "name": "BackEnd",
+          "methods": [
+            "__init__",
+            "set_hyperparams",
+            "add_next_kf",
+            "add_next_kf_dust3r",
+            "reset",
+            "initialize_map",
+            "map",
+            "color_refinement",
+            "push_to_frontend",
+            "run"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 503
+        }
+      ],
+      "imports": [
+        {
+          "source": "random",
+          "specifiers": [
+            "random"
+          ]
+        },
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.multiprocessing",
+          "specifiers": [
+            "mp"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "tqdm",
+          "specifiers": [
+            "tqdm"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.gaussian_renderer",
+          "specifiers": [
+            "render"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.loss_utils",
+          "specifiers": [
+            "l1_loss",
+            "ssim"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.graphics_utils",
+          "specifiers": [
+            "getProjectionMatrix2",
+            "getWorld2View2"
+          ]
+        },
+        {
+          "source": "utils.logging_utils",
+          "specifiers": [
+            "Log"
+          ]
+        },
+        {
+          "source": "utils.multiprocessing_utils",
+          "specifiers": [
+            "clone_obj"
+          ]
+        },
+        {
+          "source": "utils.pose_utils",
+          "specifiers": [
+            "update_pose"
+          ]
+        },
+        {
+          "source": "utils.slam_utils",
+          "specifiers": [
+            "get_loss_mapping"
+          ]
+        }
+      ],
+      "exports": [
+        "BackEnd"
+      ],
+      "totalLines": 521,
+      "hasStructuralAnalysis": true
+    },
+    "utils/slam_frontend.py": {
+      "filePath": "utils/slam_frontend.py",
+      "contentHash": "8b99e2a896b26fc4b7b403ba6202848d2ab362cfa9f60683abf623848e8540f5",
+      "functions": [],
+      "classes": [
+        {
+          "name": "FrontEnd",
+          "methods": [
+            "__init__",
+            "set_hyperparams",
+            "add_new_keyframe",
+            "initialize",
+            "tracking",
+            "is_keyframe",
+            "add_to_window",
+            "request_keyframe",
+            "request_init",
+            "sync_backend",
+            "cleanup",
+            "run"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 533
+        }
+      ],
+      "imports": [
+        {
+          "source": "time",
+          "specifiers": [
+            "time"
+          ]
+        },
+        {
+          "source": "numpy",
+          "specifiers": [
+            "np"
+          ]
+        },
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        },
+        {
+          "source": "torch.multiprocessing",
+          "specifiers": [
+            "mp"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.gaussian_renderer",
+          "specifiers": [
+            "render"
+          ]
+        },
+        {
+          "source": "gaussian_splatting.utils.graphics_utils",
+          "specifiers": [
+            "getProjectionMatrix2",
+            "getWorld2View2"
+          ]
+        },
+        {
+          "source": "gui",
+          "specifiers": [
+            "gui_utils"
+          ]
+        },
+        {
+          "source": "utils.camera_utils",
+          "specifiers": [
+            "Camera"
+          ]
+        },
+        {
+          "source": "utils.eval_utils",
+          "specifiers": [
+            "eval_ate",
+            "save_gaussians"
+          ]
+        },
+        {
+          "source": "utils.logging_utils",
+          "specifiers": [
+            "Log"
+          ]
+        },
+        {
+          "source": "utils.multiprocessing_utils",
+          "specifiers": [
+            "clone_obj"
+          ]
+        },
+        {
+          "source": "utils.pose_utils",
+          "specifiers": [
+            "update_pose"
+          ]
+        },
+        {
+          "source": "utils.slam_utils",
+          "specifiers": [
+            "get_loss_tracking",
+            "get_median_depth"
+          ]
+        },
+        {
+          "source": "utils.dust3r_utils",
+          "specifiers": [
+            "get_result",
+            "get_scale"
+          ]
+        }
+      ],
+      "exports": [
+        "FrontEnd"
+      ],
+      "totalLines": 551,
+      "hasStructuralAnalysis": true
+    },
+    "utils/slam_utils.py": {
+      "filePath": "utils/slam_utils.py",
+      "contentHash": "1123fa5eda068a9c1647800e5ec2e0781092ac891d5f22d9a37004eaf539bb22",
+      "functions": [
+        {
+          "name": "image_gradient",
+          "params": [
+            "image"
+          ],
+          "exported": true,
+          "lineCount": 18
+        },
+        {
+          "name": "image_gradient_mask",
+          "params": [
+            "image",
+            "eps"
+          ],
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "depth_reg",
+          "params": [
+            "depth",
+            "gt_image",
+            "huber_eps",
+            "mask"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "get_loss_tracking",
+          "params": [
+            "config",
+            "image",
+            "depth",
+            "opacity",
+            "viewpoint",
+            "initialization"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "get_loss_tracking_rgb",
+          "params": [
+            "config",
+            "image",
+            "depth",
+            "opacity",
+            "viewpoint"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "get_loss_tracking_rgbd",
+          "params": [
+            "config",
+            "image",
+            "depth",
+            "opacity",
+            "viewpoint",
+            "initialization"
+          ],
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "get_loss_mapping",
+          "params": [
+            "config",
+            "image",
+            "viewpoint",
+            "depth",
+            "initialization"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "get_loss_mapping_rgb",
+          "params": [
+            "config",
+            "image",
+            "viewpoint"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "get_loss_mapping_rgbd",
+          "params": [
+            "config",
+            "image",
+            "depth",
+            "viewpoint",
+            "initialization"
+          ],
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "get_median_depth",
+          "params": [
+            "depth",
+            "opacity",
+            "mask",
+            "return_std"
+          ],
+          "exported": true,
+          "lineCount": 12
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "torch",
+          "specifiers": [
+            "torch"
+          ]
+        }
+      ],
+      "exports": [
+        "image_gradient",
+        "image_gradient_mask",
+        "depth_reg",
+        "get_loss_tracking",
+        "get_loss_tracking_rgb",
+        "get_loss_tracking_rgbd",
+        "get_loss_mapping",
+        "get_loss_mapping_rgb",
+        "get_loss_mapping_rgbd",
+        "get_median_depth"
+      ],
+      "totalLines": 134,
+      "hasStructuralAnalysis": true
+    }
+  }
+}

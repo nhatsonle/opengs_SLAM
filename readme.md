@@ -1,5 +1,3 @@
-
-
 <p align="center">
   <h1 align="center"> RGB-Only Gaussian Splatting SLAM for Unbounded Outdoor Scenes
   </h1>
