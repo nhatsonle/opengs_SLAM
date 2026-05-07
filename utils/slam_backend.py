@@ -245,7 +245,7 @@ class BackEnd(mp.Process):
             # Compute isotropic loss and add it to the total loss
             scaling = self.gaussians.get_scaling
             isotropic_loss = torch.abs(scaling - scaling.mean(dim=1).view(-1, 1))
-            loss_mapping += 10 * isotropic_loss.mean()
+            loss_mapping += 1.0 * isotropic_loss.mean()
             loss_mapping.backward()
             gaussian_split = False
             ## Deinsifying / Pruning Gaussians
@@ -346,8 +346,9 @@ class BackEnd(mp.Process):
             render_pkg = render(
                 viewpoint_cam, self.gaussians, self.pipeline_params, self.background
             )
-            image, visibility_filter, radii = (
+            image, viewspace_point_tensor, visibility_filter, radii = (
                 render_pkg["render"],
+                render_pkg["viewspace_points"],
                 render_pkg["visibility_filter"],
                 render_pkg["radii"],
             )
@@ -358,14 +359,26 @@ class BackEnd(mp.Process):
                 Ll1
             ) + self.opt_params.lambda_dssim * (1.0 - ssim(image, gt_image))
             loss.backward()
-            with torch.no_grad():       
+            with torch.no_grad():
                 self.gaussians.max_radii2D[visibility_filter] = torch.max(
                     self.gaussians.max_radii2D[visibility_filter],
                     radii[visibility_filter],
                 )
+                self.gaussians.add_densification_stats(
+                    viewspace_point_tensor, visibility_filter
+                )
+                if iteration % 500 == 0 and iteration <= 15000:
+                    self.gaussians.densify_and_prune(
+                        self.opt_params.densify_grad_threshold,
+                        0.005,
+                        self.gaussian_extent,
+                        None,
+                    )
                 self.gaussians.optimizer.step()
                 self.gaussians.optimizer.zero_grad(set_to_none=True)
                 self.gaussians.update_learning_rate(20000)
+                if iteration % 1000 == 0:
+                    self.gaussians.oneupSHdegree()
         Log("Map refinement done")
     
     def push_to_frontend(self, tag=None):

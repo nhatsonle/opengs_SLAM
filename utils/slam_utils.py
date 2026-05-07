@@ -1,4 +1,5 @@
 import torch
+from gaussian_splatting.utils.loss_utils import ssim
 
 def image_gradient(image):
     # Compute image gradient using Scharr Filter
@@ -96,11 +97,13 @@ def get_loss_mapping_rgb(config, image, viewpoint):
     _, h, w = gt_image.shape
     mask_shape = (1, h, w)
     rgb_boundary_threshold = config["Training"]["rgb_boundary_threshold"]
+    lambda_dssim = config.get("opt_params", {}).get("lambda_dssim", 0.2)
 
     rgb_pixel_mask = (gt_image.sum(dim=0) > rgb_boundary_threshold).view(*mask_shape)
-    l1_rgb = torch.abs(image * rgb_pixel_mask - gt_image * rgb_pixel_mask)
+    l1_rgb = torch.abs(image * rgb_pixel_mask - gt_image * rgb_pixel_mask).mean()
+    ssim_loss = 1.0 - ssim(image.unsqueeze(0), gt_image.unsqueeze(0))
 
-    return l1_rgb.mean()
+    return (1.0 - lambda_dssim) * l1_rgb + lambda_dssim * ssim_loss
 
 def get_loss_mapping_rgbd(config, image, depth, viewpoint, initialization=False):
     alpha = config["Training"]["alpha"] if "alpha" in config["Training"] else 0.95
