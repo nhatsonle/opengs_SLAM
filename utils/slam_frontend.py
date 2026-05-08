@@ -1,10 +1,12 @@
 import time
+from collections import OrderedDict
 
 import numpy as np
 import torch
 import torch.multiprocessing as mp
 
 from gaussian_splatting.gaussian_renderer import render
+from gaussian_splatting.scene.gaussian_model import GaussianModel
 from gaussian_splatting.utils.graphics_utils import getProjectionMatrix2, getWorld2View2
 from gui import gui_utils
 from utils.camera_utils import Camera
@@ -54,6 +56,8 @@ class FrontEnd(mp.Process):
         self.scale = 1                  # Scale factor computed using median, not enabled
         self.scale1 = 1                 # Scale factor computed using mean, used for scale correction
         self.theta = 0                  # Camera angle diff from last keyframe
+        self.depth_builder = None
+        self.local_depth_gaussians = OrderedDict()
         
     def set_hyperparams(self):
         self.save_dir = self.config["Results"]["save_dir"]
@@ -64,7 +68,188 @@ class FrontEnd(mp.Process):
         self.tracking_itr_num = self.config["Training"]["tracking_itr_num"]
         self.kf_interval = self.config["Training"]["kf_interval"]
         self.window_size = self.config["Training"]["window_size"]
-        self.single_thread = self.config["Training"]["single_thread"]      
+        self.single_thread = self.config["Training"]["single_thread"]
+
+        tracking_cfg = self.config.get("Tracking", {})
+        self.pose_init_mode = tracking_cfg.get("pose_init", "constant_velocity")
+        self.use_dust3r_every_frame = tracking_cfg.get("use_dust3r_every_frame", False)
+        self.wait_for_keyframe_backend = tracking_cfg.get(
+            "wait_for_keyframe_backend", True
+        )
+        self.use_depth_local_map = tracking_cfg.get("use_depth_local_map", True)
+        self.depth_tracking_buffer = int(tracking_cfg.get("depth_tracking_buffer", 3))
+        self.depth_min = float(tracking_cfg.get("depth_min", 0.1))
+        self.depth_max = float(tracking_cfg.get("depth_max", 80.0))
+
+    def _filtered_dataset_depth(self, depth):
+        if depth is None:
+            return None
+        depth_np = np.asarray(depth, dtype=np.float32).copy()
+        valid = np.isfinite(depth_np)
+        valid = np.logical_and(valid, depth_np >= self.depth_min)
+        valid = np.logical_and(valid, depth_np <= self.depth_max)
+        depth_np[~valid] = 0.0
+        if np.count_nonzero(depth_np) == 0:
+            return None
+        return depth_np
+
+    def _ensure_depth_builder(self):
+        if self.depth_builder is None and self.gaussians is not None:
+            self.depth_builder = GaussianModel(
+                self.gaussians.max_sh_degree, config=self.config
+            )
+            self.depth_builder.active_sh_degree = self.gaussians.active_sh_degree
+        return self.depth_builder
+
+    def _build_depth_gaussian_tensors(self, viewpoint):
+        depth_map = self._filtered_dataset_depth(viewpoint.depth)
+        if depth_map is None:
+            return None
+        depth_builder = self._ensure_depth_builder()
+        if depth_builder is None:
+            return None
+        with torch.no_grad():
+            fused_point_cloud, features, scales, rots, opacities = (
+                depth_builder.create_pcd_from_image(
+                    viewpoint, init=False, depthmap=depth_map
+                )
+            )
+        if fused_point_cloud.shape[0] == 0:
+            return None
+        return {
+            "xyz": fused_point_cloud.detach(),
+            "features_dc": features[:, :, 0:1].transpose(1, 2).contiguous().detach(),
+            "features_rest": features[:, :, 1:].transpose(1, 2).contiguous().detach(),
+            "scaling": scales.detach(),
+            "rotation": rots.detach(),
+            "opacity": opacities.detach(),
+        }
+
+    def _store_local_depth_gaussian(self, frame_idx, viewpoint):
+        if not self.use_depth_local_map or self.depth_tracking_buffer <= 0:
+            return
+        tensors = self._build_depth_gaussian_tensors(viewpoint)
+        if tensors is None:
+            return
+        self.local_depth_gaussians[frame_idx] = tensors
+        while len(self.local_depth_gaussians) > self.depth_tracking_buffer:
+            self.local_depth_gaussians.popitem(last=False)
+
+    def _make_tracking_gaussians(self):
+        if self.gaussians is None or len(self.local_depth_gaussians) == 0:
+            return self.gaussians
+
+        tracking_gaussians = GaussianModel(
+            self.gaussians.max_sh_degree, config=self.config
+        )
+        tracking_gaussians.active_sh_degree = self.gaussians.active_sh_degree
+
+        local_entries = list(self.local_depth_gaussians.values())
+        tracking_gaussians._xyz = torch.cat(
+            [self.gaussians._xyz] + [entry["xyz"] for entry in local_entries], dim=0
+        )
+        tracking_gaussians._features_dc = torch.cat(
+            [self.gaussians._features_dc]
+            + [entry["features_dc"] for entry in local_entries],
+            dim=0,
+        )
+        tracking_gaussians._features_rest = torch.cat(
+            [self.gaussians._features_rest]
+            + [entry["features_rest"] for entry in local_entries],
+            dim=0,
+        )
+        tracking_gaussians._scaling = torch.cat(
+            [self.gaussians._scaling] + [entry["scaling"] for entry in local_entries],
+            dim=0,
+        )
+        tracking_gaussians._rotation = torch.cat(
+            [self.gaussians._rotation]
+            + [entry["rotation"] for entry in local_entries],
+            dim=0,
+        )
+        tracking_gaussians._opacity = torch.cat(
+            [self.gaussians._opacity] + [entry["opacity"] for entry in local_entries],
+            dim=0,
+        )
+        n_points = tracking_gaussians._xyz.shape[0]
+        tracking_gaussians.max_radii2D = torch.zeros(n_points, device=self.device)
+        tracking_gaussians.unique_kfIDs = torch.zeros(n_points).int()
+        tracking_gaussians.n_obs = torch.zeros(n_points).int()
+        return tracking_gaussians
+
+    def _initialize_pose(self, cur_frame_idx, viewpoint):
+        prev = self.cameras[cur_frame_idx - self.use_every_n_frames]
+        if self.pose_init_mode == "constant_velocity" and (
+            cur_frame_idx - 2 * self.use_every_n_frames
+        ) in self.cameras:
+            prev2 = self.cameras[cur_frame_idx - 2 * self.use_every_n_frames]
+            w2c_prev = getWorld2View2(prev.R, prev.T)
+            w2c_prev2 = getWorld2View2(prev2.R, prev2.T)
+            w2c_pred = w2c_prev @ torch.linalg.inv(w2c_prev2) @ w2c_prev
+        else:
+            w2c_pred = getWorld2View2(prev.R, prev.T)
+        viewpoint.update_RT(w2c_pred[:3, :3], w2c_pred[:3, 3])
+
+    def _estimate_median_depth(self, render_pkg, viewpoint):
+        try:
+            return get_median_depth(render_pkg["depth"], render_pkg["opacity"])
+        except Exception:
+            depth_map = self._filtered_dataset_depth(viewpoint.depth)
+            if depth_map is None:
+                return torch.tensor(1.0, device=self.device)
+            valid_depth = depth_map[depth_map > 0]
+            if valid_depth.size == 0:
+                return torch.tensor(1.0, device=self.device)
+            return torch.tensor(np.median(valid_depth), device=self.device)
+
+    def _run_keyframe_dust3r(self, viewpoint, reference_frame_idx):
+        reference = self.cameras.get(reference_frame_idx)
+        reference_image = None if reference is None else reference.original_image
+        if reference_image is None:
+            reference_image = self.last_color
+        if reference_image is None:
+            return False
+
+        try:
+            _, pts3d, imgs, matches_im0, matches_im1, matches_3d0 = get_result(
+                viewpoint.original_image,
+                reference_image,
+                model=self.d3r_model,
+                device=self.device,
+            )
+        except Exception as exc:
+            Log("DUSt3R keyframe estimation failed, using depth fallback:", exc)
+            self.pts3d = None
+            self.imgs = None
+            return False
+
+        if (
+            self.matches_im1 is not None
+            and self.matches_im0 is not None
+            and self.matches_3d0 is not None
+        ):
+            try:
+                scale1, scale = get_scale(
+                    self.matches_im1,
+                    self.matches_im0,
+                    matches_im1,
+                    matches_im0,
+                    self.matches_3d0,
+                    matches_3d0,
+                )
+                if np.isfinite(scale) and scale > 0:
+                    self.scale = self.scale * scale
+                if np.isfinite(scale1) and scale1 > 0:
+                    self.scale1 = self.scale1 * scale1
+            except Exception as exc:
+                Log("Adaptive scale matching failed, keeping previous scale:", exc)
+
+        self.pts3d = pts3d
+        self.imgs = imgs
+        self.matches_im0 = matches_im0
+        self.matches_im1 = matches_im1
+        self.matches_3d0 = matches_3d0
+        return True
         
     def add_new_keyframe(self, cur_frame_idx, depth=None, opacity=None, init=False):
         rgb_boundary_threshold = self.config["Training"]["rgb_boundary_threshold"]
@@ -88,6 +273,11 @@ class FrontEnd(mp.Process):
         ### MonoGS Gaussian init depth, not used
         gt_img = viewpoint.original_image.cuda()
         valid_rgb = (gt_img.sum(dim=0) > rgb_boundary_threshold)[None]    
+        dataset_depth = self._filtered_dataset_depth(viewpoint.depth)
+        if dataset_depth is not None:
+            dataset_depth = dataset_depth.copy()
+            dataset_depth[~valid_rgb.cpu().numpy()[0]] = 0.0
+            return dataset_depth
         if self.monocular:
             if depth is None:
                 initial_depth = 2 * torch.ones(1, gt_img.shape[1], gt_img.shape[2]) 
@@ -154,24 +344,8 @@ class FrontEnd(mp.Process):
         self.reset = False
     
     def tracking(self, cur_frame_idx, viewpoint):
-        prev = self.cameras[cur_frame_idx - self.use_every_n_frames]
-        # Get relative pose, pointcloud, and point matching correspondence
-        trans_pose ,pts3d, imgs, matches_im0, matches_im1, matches_3d0=get_result(viewpoint.original_image, self.last_color, model=self.d3r_model, device=self.device)
-        self.pts3d = pts3d
-        self.imgs = imgs
-        # Get scale factor
-        scale1, scale = get_scale(self.matches_im1, self.matches_im0, matches_im1, matches_im0, self.matches_3d0, matches_3d0)
-        self.scale = self.scale * scale
-        self.scale1 = self.scale1 * scale1
-        self.matches_im0 = matches_im0
-        self.matches_im1 = matches_im1
-        self.matches_3d0 = matches_3d0
-        # Pose Estimation
-        trans_pose_inv = np.linalg.inv(trans_pose)
-        trans_pose_inv_torch = torch.from_numpy(trans_pose_inv).to(self.device)
-        w2c1 = getWorld2View2(prev.R, prev.T)
-        w2c2 = trans_pose_inv_torch @ w2c1
-        viewpoint.update_RT(w2c2[:3,:3],w2c2[:3,3])         # Compute current frame pose estimation using relative pose
+        self._initialize_pose(cur_frame_idx, viewpoint)
+        tracking_gaussians = self._make_tracking_gaussians()
         # pose optimization
         opt_params = []     
         opt_params.append(
@@ -204,10 +378,13 @@ class FrontEnd(mp.Process):
         )
 
         pose_optimizer = torch.optim.Adam(opt_params)
+        render_pkg = None
         for tracking_itr in range(self.tracking_itr_num):
             render_pkg = render(
-                viewpoint, self.gaussians, self.pipeline_params, self.background
+                viewpoint, tracking_gaussians, self.pipeline_params, self.background
             )
+            if render_pkg is None:
+                break
             image, depth, opacity = (
                 render_pkg["render"],
                 render_pkg["depth"],
@@ -235,19 +412,23 @@ class FrontEnd(mp.Process):
                 )
             if converged:
                 break
-            
-        ## Print camera pose change and scale factor
-        #c2w1 = torch.linalg.inv(w2c1)
-        #c2w2 = torch.linalg.inv(w2c2)
-        #c2w3 = torch.linalg.inv(getWorld2View2(viewpoint.R, viewpoint.T))
-        #print("Pose estimation translation:", c2w2[:3,3]- c2w1[:3,3])
-        #print("Optimized pose translation:", c2w3[:3,3]- c2w2[:3,3])
-        #print("Current frame mean scale:",scale1)
-        #print("Cumulative mean scale factor:", self.scale1)
-        #print("Current frame median scale:",scale)
-        #print("Cumulative median scale factor:", self.scale)
-        
-        self.median_depth = get_median_depth(depth, opacity)    # Median rendered depth for keyframe determination
+
+        global_render_pkg = render(
+            viewpoint, self.gaussians, self.pipeline_params, self.background
+        )
+        if global_render_pkg is not None:
+            self.median_depth = self._estimate_median_depth(global_render_pkg, viewpoint)
+            if render_pkg is None:
+                render_pkg = global_render_pkg
+            else:
+                render_pkg["n_touched"] = global_render_pkg["n_touched"]
+                render_pkg["visibility_filter"] = global_render_pkg[
+                    "visibility_filter"
+                ]
+                render_pkg["radii"] = global_render_pkg["radii"]
+        else:
+            self.median_depth = self._estimate_median_depth(render_pkg, viewpoint)
+
         return render_pkg
     
     def is_keyframe(
@@ -354,6 +535,8 @@ class FrontEnd(mp.Process):
     # Sync data from backend (3D Gaussians, occlusion-aware visibility, keyframe info)
     def sync_backend(self, data):
         self.gaussians = data[1]
+        if self.depth_builder is not None:
+            self.depth_builder.active_sh_degree = self.gaussians.active_sh_degree
         occ_aware_visibility = data[2]
         keyframes = data[3]
         self.occ_aware_visibility = occ_aware_visibility
@@ -418,11 +601,11 @@ class FrontEnd(mp.Process):
                     time.sleep(0.01)
                     continue
 
-                if self.single_thread and self.requested_keyframe > 0:
-                    time.sleep(0.01)
-                    continue
-
-                if not self.initialized and self.requested_keyframe > 0:
+                if self.requested_keyframe > 0 and (
+                    self.single_thread
+                    or self.wait_for_keyframe_backend
+                    or not self.initialized
+                ):
                     time.sleep(0.01)
                     continue
                 
@@ -435,9 +618,11 @@ class FrontEnd(mp.Process):
         
                 if self.reset:
                     self.last_color = self.cameras[cur_frame_idx].original_image
-                    _ ,pts3d, imgs, self.matches_im0, self.matches_im1, self.matches_3d0=get_result(self.last_color,self.last_color, model=self.d3r_model, device=self.device)
-                    self.pts3d = pts3d
-                    self.imgs = imgs 
+                    self.pts3d = None
+                    self.imgs = None
+                    self.matches_im0 = None
+                    self.matches_im1 = None
+                    self.matches_3d0 = None
                     self.initialize(cur_frame_idx, viewpoint)
                     self.current_window.append(cur_frame_idx)
                     cur_frame_idx += 1
@@ -450,6 +635,11 @@ class FrontEnd(mp.Process):
                 # Tracking
                 render_pkg = self.tracking(cur_frame_idx, viewpoint)
                 self.last_color = self.cameras[cur_frame_idx].original_image
+                if render_pkg is None:
+                    self.cleanup(cur_frame_idx)
+                    cur_frame_idx += 1
+                    continue
+                self._store_local_depth_gaussian(cur_frame_idx, viewpoint)
     
                 current_window_dict = {}
                 current_window_dict[self.current_window[0]] = self.current_window[1:]
@@ -493,6 +683,7 @@ class FrontEnd(mp.Process):
                 if self.single_thread:      
                     create_kf = check_time and create_kf
                 if create_kf:       
+                    reference_keyframe_idx = last_keyframe_idx
                     self.current_window, removed = self.add_to_window(
                         cur_frame_idx,
                         curr_visibility,
@@ -505,6 +696,7 @@ class FrontEnd(mp.Process):
                         opacity=render_pkg["opacity"],
                         init=False,
                     )
+                    self._run_keyframe_dust3r(viewpoint, reference_keyframe_idx)
                     Log("new keyframe: ", cur_frame_idx)
                     self.request_keyframe(   
                         cur_frame_idx, viewpoint, self.current_window, depth_map

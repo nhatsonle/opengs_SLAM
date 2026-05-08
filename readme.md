@@ -90,6 +90,37 @@ CUDA_VISIBLE_DEVICES=0 python slam.py --config configs/mono/waymo/100613.yaml
 bash run_waymo.sh
 ```
 
+## Depth-Aided Tracking Variant
+
+This fork adds a depth-aided tracking path for the processed Waymo data. Instead of running DUSt3R on every consecutive RGB pair, the frontend now initializes each non-keyframe pose with a constant-velocity prior and refines it with the existing photometric tracking loss. Waymo depth maps are back-projected into a small render-only local Gaussian buffer to support tracking, while non-keyframe depth Gaussians are not committed to the global map.
+
+DUSt3R is still used for keyframes. When overlap becomes low enough to create a keyframe, the keyframe RGB pair is passed through DUSt3R, and the resulting pointmap is inserted into the global Gaussian map. If DUSt3R keyframe insertion fails, the backend falls back to the existing RGB-D/depth back-projection path.
+
+The default behavior is controlled in `configs/mono/waymo/base_config.yaml`:
+
+```yaml
+Tracking:
+  pose_init: "constant_velocity"
+  use_dust3r_every_frame: False
+  wait_for_keyframe_backend: True
+  depth_tracking_buffer: 3
+  use_depth_local_map: True
+  depth_min: 0.1
+  depth_max: 80.0
+```
+
+Quick validation commands:
+
+```bash
+python -m py_compile slam.py utils/slam_frontend.py utils/slam_backend.py gaussian_splatting/scene/gaussian_model.py
+
+CUDA_VISIBLE_DEVICES=0 python slam.py --config configs/mono/waymo/405841.yaml
+```
+
+For a faster smoke run, temporarily reduce `init_itr_num`, `tracking_itr_num`, and `mapping_itr_num`, and disable `eval_rendering` and `color_refinement` in the config.
+
+See `docs/depth_aided_architecture.md` for the implementation details and the updated system architecture.
+
 ## Demo
 
 - If you want to view the real-time interactive SLAM window, please change `Results-use_gui` in `base_config.yaml` to True.
@@ -100,7 +131,7 @@ bash run_waymo.sh
 
 - Please organize your data format and modify the code in `utils/dataset.py`.
 
-- Depth map input interface is still retained in the code, although we didn't use it for SLAM.
+- The Waymo path now uses the retained depth input interface for depth-aided tracking and depth fallback mapping. For new datasets, provide metric depth maps through `utils/dataset.py` if you want to use this variant.
 
 # Acknowledgement
 

@@ -425,19 +425,14 @@ class BackEnd(mp.Process):
                     cur_frame_idx = data[1]
                     viewpoint = data[2]
                     depth_map = data[3]
-                    pts3d = data[4]
-                    imgs = data[5]
-                    mask = data[6]
                     self.scale = 1
                     Log("Resetting the system")
                     self.reset()
 
                     self.viewpoints[cur_frame_idx] = viewpoint
-                    T_np = np.linalg.inv(getWorld2View2(viewpoint.R,viewpoint.T).cpu().numpy())
-                    T = torch.from_numpy(T_np).to(self.device)
-                    #self.add_next_kf(cur_frame_idx, viewpoint, depth_map=depth_map, init=True)
-                    ## Initialize SLAM map using pointmap
-                    self.add_next_kf_dust3r(cur_frame_idx, pts3d, imgs, T, mask, init=True, scale=self.scale)
+                    self.add_next_kf(
+                        cur_frame_idx, viewpoint, depth_map=depth_map, init=True
+                    )
                     self.initialize_map(cur_frame_idx, viewpoint)
                     self.push_to_frontend("init")
 
@@ -451,7 +446,9 @@ class BackEnd(mp.Process):
                     mask = data[7]
                     self.scale = data[8]
                     self.theta = data[9]
-                    theta_value = self.theta.item()
+                    theta_value = (
+                        self.theta.item() if hasattr(self.theta, "item") else float(self.theta)
+                    )
                     ## adjust the cumulative iterations for Adaptive Learning Rate Adjustment
                     if theta_value >= 2:
                         self.iteration_count = self.iteration_count * (1-np.sqrt(theta_value / 90))
@@ -463,13 +460,30 @@ class BackEnd(mp.Process):
                     T = torch.from_numpy(T_np).to(self.device)
                     self.viewpoints[cur_frame_idx] = viewpoint
                     self.current_window = current_window
-                    #self.add_next_kf(cur_frame_idx, viewpoint, depth_map=depth_map)
-                    ## Adaptive Scale Mapper
-                    self.add_next_kf_dust3r(cur_frame_idx, pts3d, imgs, T, mask, scale=self.scale)
+                    if pts3d is not None and imgs is not None:
+                        try:
+                            self.add_next_kf_dust3r(
+                                cur_frame_idx,
+                                pts3d,
+                                imgs,
+                                T,
+                                mask,
+                                scale=self.scale,
+                            )
+                        except Exception as exc:
+                            Log(
+                                "DUSt3R keyframe insertion failed, using depth fallback:",
+                                exc,
+                            )
+                            self.add_next_kf(
+                                cur_frame_idx, viewpoint, depth_map=depth_map
+                            )
+                    else:
+                        self.add_next_kf(cur_frame_idx, viewpoint, depth_map=depth_map)
     
                     opt_params = []
                     frames_to_optimize = self.config["Training"]["pose_window"]
-                    iter_per_kf = self.mapping_itr_num if self.single_thread else 150
+                    iter_per_kf = self.mapping_itr_num
                     if not self.initialized:
                         if (
                             len(self.current_window)

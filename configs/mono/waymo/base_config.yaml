@@ -6,7 +6,7 @@ Results:
   use_gui: False
   eval_rendering: True
   use_wandb: False
-  color_refinement: True
+  color_refinement: False
 
 Dataset:
   type: 'waymo'
@@ -16,14 +16,23 @@ Dataset:
   adaptive_pointsize: True
   point_size: 0.01
 
+Tracking:
+  pose_init: "constant_velocity"
+  use_dust3r_every_frame: False
+  wait_for_keyframe_backend: True
+  depth_tracking_buffer: 3
+  use_depth_local_map: True
+  depth_min: 0.1
+  depth_max: 80.0
+
 Training:
-  init_itr_num: 1050
+  init_itr_num: 50 #1050
   init_gaussian_update: 100
   init_gaussian_reset: 500
   init_gaussian_th: 0.005
   init_gaussian_extent: 30
-  tracking_itr_num: 100
-  mapping_itr_num: 150
+  tracking_itr_num: 20 #100
+  mapping_itr_num: 20 #150
   gaussian_update_every: 150
   gaussian_update_offset: 50
   gaussian_th: 0.7
