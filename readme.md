@@ -28,7 +28,7 @@
 1. Clone OpenGS-SLAM.
 
 ```bash
-git clone https://github.com/3DAgentWorld/OpenGS-SLAM.git --recursive
+git clone https://github.com/nhatsonle/opengs_SLAM.git --recursive
 cd OpenGS-SLAM
 ```
 
