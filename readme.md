@@ -35,10 +35,10 @@ cd opengs_SLAM
 2. Setup the environment.
 
 ```bash
-apt-get update && apt-get install -y libgl1-mesa-glx libglib2.0-0 build-essential git
+apt-get update && apt-get install -y libgl1-mesa-glx libglib2.0-0 build-essential git unzip
 pip install numpy==1.24.4 scipy matplotlib pandas networkx tqdm pyyaml opencv-python ffmpeg \
             pycolmap einops evo plyfile open3d trimesh roma numpy-quaternion \
-            lpips tensorboard wandb pyopengl pyrender huggingface-hub cvxpy munch glfw imgviz pyglm==2.7.1 torchmetrics==1.4.0.post0
+            lpips tensorboard wandb pyopengl pyrender huggingface-hub cvxpy munch glfw imgviz pyglm==2.7.1 torchmetrics==1.4.0.post0 gdown
 ```
 
 3. Compile submodules for Gaussian splatting
@@ -78,13 +78,14 @@ Please note that you must agree to the DUSt3R license when using it.
 
 The processed data for the 9 Waymo segments can be downloaded via [baidu](https://pan.baidu.com/s/1I1rnB6B8k2d4wzcRMT6gjA?pwd=omcg ) or [google](https://drive.google.com/drive/folders/1xUyNuNzUtsvZIV_q5Qz9zIXMGoMbLuCr?usp=sharing).
 
+
 Save data under the `datasets/waymo` directory.
 
 ## Run
 
 ```bash
 ## Taking 100613 as an example
-CUDA_VISIBLE_DEVICES=0 python slam.py --config configs/mono/waymo/100613.yaml
+CUDA_VISIBLE_DEVICES=0 python slam.py --config configs/mono/waymo/405841.yaml
 
 ## All 9 Waymo scenes
 bash run_waymo.sh
