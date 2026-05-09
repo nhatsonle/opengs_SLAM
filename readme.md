@@ -29,7 +29,7 @@
 
 ```bash
 git clone https://github.com/nhatsonle/opengs_SLAM.git --recursive
-cd OpenGS-SLAM
+cd opengs_SLAM
 ```
 
 2. Setup the environment.
