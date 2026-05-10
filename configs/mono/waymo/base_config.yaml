@@ -6,9 +6,9 @@ Results:
   use_gui: False
   eval_rendering: True
   use_wandb: False
-  color_refinement: True
-  profile_timing: False
-
+  color_refinement: False
+  profile_timing: True
+  
 Dataset:
   type: 'waymo'
   sensor_type: 'monocular'
@@ -49,9 +49,9 @@ MappingOptimization:
   low_coverage_full_mapping_th: 0.55
 
   smart_pruning: True
-  prune_min_age: 2
-  prune_opacity_th: 0.005
-  prune_min_observations: 2
+  recent_density_keyframes: 3
+  prune_opacity_th: 0.05
+  prune_min_observations: 3
   prune_large_screen_radius: True
 
 Training:

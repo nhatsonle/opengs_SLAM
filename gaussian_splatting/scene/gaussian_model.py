@@ -761,12 +761,29 @@ class GaussianModel:
         if new_n_obs is not None:
             self.n_obs = torch.cat((self.n_obs, new_n_obs)).int()
 
-    def densify_and_split(self, grads, grad_threshold, scene_extent, N=2):
+    def _normalize_density_mask(self, density_mask, n_points):
+        if density_mask is None:
+            return None
+        density_mask = density_mask.to(device="cuda", dtype=torch.bool).flatten()
+        if density_mask.shape[0] == n_points:
+            return density_mask
+
+        normalized = torch.zeros((n_points), device="cuda", dtype=torch.bool)
+        usable = min(density_mask.shape[0], n_points)
+        normalized[:usable] = density_mask[:usable]
+        return normalized
+
+    def densify_and_split(
+        self, grads, grad_threshold, scene_extent, N=2, density_mask=None
+    ):
         n_init_points = self.get_xyz.shape[0]
         # Extract points that satisfy the gradient condition
         padded_grad = torch.zeros((n_init_points), device="cuda")
         padded_grad[: grads.shape[0]] = grads.squeeze()
         selected_pts_mask = torch.where(padded_grad >= grad_threshold, True, False)
+        density_mask = self._normalize_density_mask(density_mask, n_init_points)
+        if density_mask is not None:
+            selected_pts_mask = torch.logical_and(selected_pts_mask, density_mask)
         selected_pts_mask = torch.logical_and(
             selected_pts_mask,
             torch.max(self.get_scaling, dim=1).values
@@ -811,11 +828,16 @@ class GaussianModel:
 
         self.prune_points(prune_filter)
 
-    def densify_and_clone(self, grads, grad_threshold, scene_extent):
+    def densify_and_clone(self, grads, grad_threshold, scene_extent, density_mask=None):
         # Extract points that satisfy the gradient condition
         selected_pts_mask = torch.where(
             torch.norm(grads, dim=-1) >= grad_threshold, True, False
         )
+        density_mask = self._normalize_density_mask(
+            density_mask, selected_pts_mask.shape[0]
+        )
+        if density_mask is not None:
+            selected_pts_mask = torch.logical_and(selected_pts_mask, density_mask)
         selected_pts_mask = torch.logical_and(
             selected_pts_mask,
             torch.max(self.get_scaling, dim=1).values
@@ -842,28 +864,28 @@ class GaussianModel:
             new_n_obs=new_n_obs,
         )
 
-    def densify_and_prune(self, max_grad, min_opacity, extent, max_screen_size):
+    def densify_and_prune(
+        self, max_grad, min_opacity, extent, max_screen_size, density_mask=None
+    ):
         grads = self.xyz_gradient_accum / self.denom
         grads[grads.isnan()] = 0.0
 
-        self.densify_and_clone(grads, max_grad, extent)
-        self.densify_and_split(grads, max_grad, extent)
+        density_mask = self._normalize_density_mask(density_mask, grads.shape[0])
+        self.densify_and_clone(grads, max_grad, extent, density_mask=density_mask)
+        self.densify_and_split(grads, max_grad, extent, density_mask=density_mask)
 
         prune_mask = (self.get_opacity < min_opacity).squeeze()
-        mapping_cfg = self.config.get("MappingOptimization", {}) if self.config else {}
-        old_enough_mask = None
-        if mapping_cfg.get("smart_pruning", False) and self.unique_kfIDs.numel() > 0:
-            current_kf_id = int(torch.max(self.unique_kfIDs).item())
-            min_age = int(mapping_cfg.get("prune_min_age", 2))
-            age = current_kf_id - self.unique_kfIDs.to(prune_mask.device)
-            old_enough_mask = age >= min_age
-            prune_mask = torch.logical_and(prune_mask, old_enough_mask)
+        prune_density_mask = self._normalize_density_mask(
+            density_mask, prune_mask.shape[0]
+        )
+        if prune_density_mask is not None:
+            prune_mask = torch.logical_and(prune_mask, prune_density_mask)
         if max_screen_size:
             big_points_vs = self.max_radii2D > max_screen_size
             big_points_ws = self.get_scaling.max(dim=1).values > 0.1 * extent
             big_points = torch.logical_or(big_points_vs, big_points_ws)
-            if old_enough_mask is not None:
-                big_points = torch.logical_and(big_points, old_enough_mask)
+            if prune_density_mask is not None:
+                big_points = torch.logical_and(big_points, prune_density_mask)
 
             prune_mask = torch.logical_or(prune_mask, big_points)
         self.prune_points(prune_mask)

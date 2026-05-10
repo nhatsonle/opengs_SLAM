@@ -82,6 +82,12 @@ class BackEnd(mp.Process):
         self.adaptive_mapping_iters = self.mapping_opt_cfg.get(
             "adaptive_mapping_iters", False
         )
+        self.recent_density_keyframes = int(
+            self.mapping_opt_cfg.get("recent_density_keyframes", 3)
+        )
+        self.prune_recent_observation_th = int(
+            self.mapping_opt_cfg.get("prune_min_observations", 3)
+        )
 
     def _profile_start(self):
         if not self.profile_timing:
@@ -102,6 +108,22 @@ class BackEnd(mp.Process):
     def _log_profile(self, message):
         if self.profile_timing:
             Log(message, tag="Profile")
+
+    def _recent_gaussian_mask(self, current_window):
+        if self.gaussians is None or self.gaussians.unique_kfIDs.numel() == 0:
+            return None
+
+        if not self.initialized:
+            return self.gaussians.unique_kfIDs >= 0
+
+        recent_kf_count = max(1, self.recent_density_keyframes)
+        sorted_window = sorted(current_window, reverse=True)
+        if len(sorted_window) == 0:
+            return self.gaussians.unique_kfIDs >= 0
+
+        threshold_idx = min(recent_kf_count - 1, len(sorted_window) - 1)
+        recent_threshold = sorted_window[threshold_idx]
+        return self.gaussians.unique_kfIDs >= recent_threshold
 
     def _select_mapping_iters(self, new_gaussians, base_iters, insert_info):
         if not self.adaptive_mapping_iters:
@@ -375,28 +397,27 @@ class BackEnd(mp.Process):
                             self.gaussians.n_obs += visibility.cpu()
                         to_prune = None
                         if self.mapping_opt_cfg.get("smart_pruning", False):
-                            current_kf_id = max(current_window)
-                            min_age = int(self.mapping_opt_cfg.get("prune_min_age", 2))
-                            min_obs = int(
-                                self.mapping_opt_cfg.get("prune_min_observations", 2)
-                            )
                             opacity_th = float(
                                 self.mapping_opt_cfg.get(
                                     "prune_opacity_th", self.gaussian_th
                                 )
                             )
-                            age = current_kf_id - self.gaussians.unique_kfIDs
-                            old_enough = age >= min_age
-                            low_observation = self.gaussians.n_obs < min_obs
+                            recent_mask = self._recent_gaussian_mask(current_window)
+                            if recent_mask is None:
+                                recent_mask = torch.ones_like(
+                                    self.gaussians.unique_kfIDs, dtype=torch.bool
+                                )
+                            low_observation = (
+                                self.gaussians.n_obs <= self.prune_recent_observation_th
+                            )
                             low_opacity = (
                                 self.gaussians.get_opacity.detach().cpu().squeeze()
                                 < opacity_th
                             )
-                            to_prune = torch.logical_and(
-                                old_enough,
-                                torch.logical_and(low_observation, low_opacity),
+                            prune_reason = torch.logical_or(
+                                low_observation, low_opacity
                             )
-                            too_large = torch.zeros_like(to_prune)
+                            too_large = torch.zeros_like(low_observation)
                             if self.mapping_opt_cfg.get(
                                 "prune_large_screen_radius", True
                             ):
@@ -404,15 +425,13 @@ class BackEnd(mp.Process):
                                     self.gaussians.max_radii2D.detach().cpu()
                                     > self.size_threshold
                                 )
-                                to_prune = torch.logical_or(
-                                    to_prune,
-                                    torch.logical_and(
-                                        old_enough,
-                                        torch.logical_and(low_observation, too_large),
-                                    ),
+                                prune_reason = torch.logical_or(
+                                    prune_reason, too_large
                                 )
+                            to_prune = torch.logical_and(recent_mask, prune_reason)
                             self._log_profile(
                                 "gaussian_prune_count: "
+                                f"recent={int(recent_mask.count_nonzero().item())} "
                                 f"low_opacity={int(low_opacity.count_nonzero().item())} "
                                 f"low_observation={int(low_observation.count_nonzero().item())} "
                                 f"too_large={int(too_large.count_nonzero().item())} "
@@ -463,11 +482,23 @@ class BackEnd(mp.Process):
                     == self.gaussian_update_offset
                 )
                 if update_gaussian:
+                    density_mask = None
+                    if self.mapping_opt_cfg.get("smart_pruning", False):
+                        density_mask = self._recent_gaussian_mask(current_window)
+                        if density_mask is not None:
+                            self._log_profile(
+                                "recent_density_control: "
+                                f"selected={int(density_mask.count_nonzero().item())}/"
+                                f"{density_mask.numel()}"
+                            )
                     self.gaussians.densify_and_prune(
                         self.opt_params.densify_grad_threshold,
                         self.gaussian_th,
                         self.gaussian_extent,
                         self.size_threshold,
+                        density_mask=density_mask.cuda()
+                        if density_mask is not None
+                        else None,
                     )
                     gaussian_split = True
 
