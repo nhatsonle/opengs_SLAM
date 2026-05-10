@@ -15,6 +15,11 @@ from utils.pose_utils import update_pose
 from utils.slam_utils import get_loss_mapping
 
 
+def _sync_cuda_if_available():
+    if torch.cuda.is_available():
+        torch.cuda.synchronize()
+
+
 class BackEnd(mp.Process):
     def __init__(self, config, save_dir=None):
         super().__init__()
@@ -46,6 +51,7 @@ class BackEnd(mp.Process):
 
     def set_hyperparams(self):
         self.save_results = self.config["Results"]["save_results"]
+        self.profile_timing = self.config["Results"].get("profile_timing", True)
 
         self.init_itr_num = self.config["Training"]["init_itr_num"]
         self.init_gaussian_update = self.config["Training"]["init_gaussian_update"]
@@ -69,19 +75,118 @@ class BackEnd(mp.Process):
             if "single_thread" in self.config["Dataset"]
             else False
         )
-    # In MonoGS, initialize Gaussians and add to the current scene (not enabled)
-    def add_next_kf(self, frame_idx, viewpoint, init=False, scale=2.0, depth_map=None):
-        self.gaussians.extend_from_pcd_seq(
-            viewpoint, kf_id=frame_idx, init=init, scale=scale, depthmap=depth_map
+        self.mapping_opt_cfg = self.config.get("MappingOptimization", {})
+        self.max_new_gaussians_per_kf = self.mapping_opt_cfg.get(
+            "max_new_gaussians_per_kf", None
         )
+        self.adaptive_mapping_iters = self.mapping_opt_cfg.get(
+            "adaptive_mapping_iters", False
+        )
+
+    def _profile_start(self):
+        if not self.profile_timing:
+            return None
+        _sync_cuda_if_available()
+        return time.perf_counter()
+
+    def _profile_end(self, name, start, frame_idx=None):
+        if start is None:
+            return
+        _sync_cuda_if_available()
+        elapsed_ms = (time.perf_counter() - start) * 1000.0
+        if frame_idx is None:
+            Log(f"{name}: {elapsed_ms:.2f} ms", tag="Profile")
+        else:
+            Log(f"frame {frame_idx} {name}: {elapsed_ms:.2f} ms", tag="Profile")
+
+    def _log_profile(self, message):
+        if self.profile_timing:
+            Log(message, tag="Profile")
+
+    def _select_mapping_iters(self, new_gaussians, base_iters, insert_info):
+        if not self.adaptive_mapping_iters:
+            return base_iters
+        coverage_ratio = insert_info.get("coverage_ratio") if insert_info else None
+        low_coverage_th = float(
+            self.mapping_opt_cfg.get("low_coverage_full_mapping_th", 0.55)
+        )
+        if coverage_ratio is not None and coverage_ratio < low_coverage_th:
+            selected_iters = base_iters
+        elif new_gaussians < int(
+            self.mapping_opt_cfg.get("small_insert_gaussians", 5000)
+        ):
+            selected_iters = min(
+                base_iters, int(self.mapping_opt_cfg.get("small_insert_iters", 20))
+            )
+        elif new_gaussians < int(
+            self.mapping_opt_cfg.get("medium_insert_gaussians", 30000)
+        ):
+            selected_iters = min(
+                base_iters, int(self.mapping_opt_cfg.get("medium_insert_iters", 50))
+            )
+        else:
+            selected_iters = base_iters
+        self._log_profile(
+            "adaptive_mapping_iters: "
+            f"new_gaussians={new_gaussians} "
+            f"coverage={coverage_ratio if coverage_ratio is not None else 'n/a'} "
+            f"iters={selected_iters}"
+        )
+        return selected_iters
+
+    # In MonoGS, initialize Gaussians and add to the current scene (not enabled)
+    def add_next_kf(
+        self,
+        frame_idx,
+        viewpoint,
+        init=False,
+        scale=2.0,
+        depth_map=None,
+        insert_mask=None,
+        max_points=None,
+    ):
+        before = self.gaussians.get_xyz.shape[0]
+        self.gaussians.extend_from_pcd_seq(
+            viewpoint,
+            kf_id=frame_idx,
+            init=init,
+            scale=scale,
+            depthmap=depth_map,
+            insert_mask=insert_mask,
+            max_points=max_points,
+        )
+        return self.gaussians.get_xyz.shape[0] - before
+
     # Initialize Gaussians via pointmap and add to the current scene   
-    def add_next_kf_dust3r(self, frame_idx, pts3d, imgs, T, mask=None, init=False, scale=1):
+    def add_next_kf_dust3r(
+        self,
+        frame_idx,
+        pts3d,
+        imgs,
+        T,
+        mask=None,
+        init=False,
+        scale=1,
+        max_points=None,
+    ):
+        before = self.gaussians.get_xyz.shape[0]
         fused_point_cloud, features, scales, rots, opacities = (
-            self.gaussians.create_pcd_from_dust3r(pts3d, imgs, T, frame_idx, self.save_dir, scale, mask, init=init)
+            self.gaussians.create_pcd_from_dust3r(
+                pts3d,
+                imgs,
+                T,
+                frame_idx,
+                self.save_dir,
+                scale,
+                mask,
+                init=init,
+                max_points=max_points,
+            )
         )
         self.gaussians.extend_from_pcd(
             fused_point_cloud, features, scales, rots, opacities, frame_idx
         )
+        return self.gaussians.get_xyz.shape[0] - before
 
     def reset(self):
         self.iteration_count = 0
@@ -98,6 +203,7 @@ class BackEnd(mp.Process):
             
     # Initialize SLAM map by optimizing Gaussian parameters over multiple iterations
     def initialize_map(self, cur_frame_idx, viewpoint):
+        profile_start = self._profile_start()
         for mapping_iteration in range(self.init_itr_num):
             self.iteration_count += 1
             self.iteration_count1 += 1
@@ -152,12 +258,15 @@ class BackEnd(mp.Process):
 
         self.occ_aware_visibility[cur_frame_idx] = (n_touched > 0).long()   
         Log("Initialized map")
+        self._profile_end("backend_initialize_map", profile_start, cur_frame_idx)
         return render_pkg
     
     def map(self, current_window, prune=False, iters=1):
         if len(current_window) == 0:
             return
 
+        profile_start = self._profile_start()
+        profile_frame_idx = current_window[0] if len(current_window) > 0 else None
         viewpoint_stack = [self.viewpoints[kf_idx] for kf_idx in current_window]
         random_viewpoint_stack = []
         frames_to_optimize = self.config["Training"]["pose_window"]
@@ -265,18 +374,63 @@ class BackEnd(mp.Process):
                         for window_idx, visibility in self.occ_aware_visibility.items():
                             self.gaussians.n_obs += visibility.cpu()
                         to_prune = None
-                        if prune_mode == "odometry":
-                            to_prune = self.gaussians.n_obs < 3
-                            # make sure we don't split the gaussians, break here.
-                        if prune_mode == "slam":
-                            # only prune keyframes which are relatively new
-                            sorted_window = sorted(current_window, reverse=True)
-                            mask = self.gaussians.unique_kfIDs >= sorted_window[2]
-                            if not self.initialized:
-                                mask = self.gaussians.unique_kfIDs >= 0
-                            to_prune = torch.logical_and(
-                                self.gaussians.n_obs <= prune_coviz, mask
+                        if self.mapping_opt_cfg.get("smart_pruning", False):
+                            current_kf_id = max(current_window)
+                            min_age = int(self.mapping_opt_cfg.get("prune_min_age", 2))
+                            min_obs = int(
+                                self.mapping_opt_cfg.get("prune_min_observations", 2)
                             )
+                            opacity_th = float(
+                                self.mapping_opt_cfg.get(
+                                    "prune_opacity_th", self.gaussian_th
+                                )
+                            )
+                            age = current_kf_id - self.gaussians.unique_kfIDs
+                            old_enough = age >= min_age
+                            low_observation = self.gaussians.n_obs < min_obs
+                            low_opacity = (
+                                self.gaussians.get_opacity.detach().cpu().squeeze()
+                                < opacity_th
+                            )
+                            to_prune = torch.logical_and(
+                                old_enough,
+                                torch.logical_and(low_observation, low_opacity),
+                            )
+                            too_large = torch.zeros_like(to_prune)
+                            if self.mapping_opt_cfg.get(
+                                "prune_large_screen_radius", True
+                            ):
+                                too_large = (
+                                    self.gaussians.max_radii2D.detach().cpu()
+                                    > self.size_threshold
+                                )
+                                to_prune = torch.logical_or(
+                                    to_prune,
+                                    torch.logical_and(
+                                        old_enough,
+                                        torch.logical_and(low_observation, too_large),
+                                    ),
+                                )
+                            self._log_profile(
+                                "gaussian_prune_count: "
+                                f"low_opacity={int(low_opacity.count_nonzero().item())} "
+                                f"low_observation={int(low_observation.count_nonzero().item())} "
+                                f"too_large={int(too_large.count_nonzero().item())} "
+                                f"final={int(to_prune.count_nonzero().item())}"
+                            )
+                        else:
+                            if prune_mode == "odometry":
+                                to_prune = self.gaussians.n_obs < 3
+                                # make sure we don't split the gaussians, break here.
+                            if prune_mode == "slam":
+                                # only prune keyframes which are relatively new
+                                sorted_window = sorted(current_window, reverse=True)
+                                mask = self.gaussians.unique_kfIDs >= sorted_window[2]
+                                if not self.initialized:
+                                    mask = self.gaussians.unique_kfIDs >= 0
+                                to_prune = torch.logical_and(
+                                    self.gaussians.n_obs <= prune_coviz, mask
+                                )
                         if to_prune is not None and self.monocular:         
                             self.gaussians.prune_points(to_prune.cuda())
                             for idx in range((len(current_window))):
@@ -288,6 +442,11 @@ class BackEnd(mp.Process):
                             self.initialized = True
                             Log("Initialized SLAM")
                         # # make sure we don't split the gaussians, break here.
+                    self._profile_end(
+                        f"backend_mapping(iters={iters}, prune={prune})",
+                        profile_start,
+                        profile_frame_idx,
+                    )
                     return False
           
                 for idx in range(len(viewspace_point_tensor_acm)):
@@ -331,6 +490,11 @@ class BackEnd(mp.Process):
                     if viewpoint.uid == 0:
                         continue
                     update_pose(viewpoint)
+        self._profile_end(
+            f"backend_mapping(iters={iters}, prune={prune})",
+            profile_start,
+            profile_frame_idx,
+        )
         return gaussian_split
     
     def color_refinement(self):
@@ -382,6 +546,7 @@ class BackEnd(mp.Process):
         Log("Map refinement done")
     
     def push_to_frontend(self, tag=None):
+        profile_start = self._profile_start()
         self.last_sent = 0
         keyframes = []
         for kf_idx in self.current_window:
@@ -392,6 +557,7 @@ class BackEnd(mp.Process):
             
         msg = [tag, clone_obj(self.gaussians), self.occ_aware_visibility, keyframes]
         self.frontend_queue.put(msg)
+        self._profile_end(f"backend_clone_sync_gaussians[{tag}]", profile_start)
     # Main loop: process messages from the backend queue, perform map optimization, color refinement, 
     # initialization, and keyframe management; synchronize data and push to the frontend
     def run(self):
@@ -446,6 +612,7 @@ class BackEnd(mp.Process):
                     mask = data[7]
                     self.scale = data[8]
                     self.theta = data[9]
+                    insert_info = data[10] if len(data) > 10 else {}
                     theta_value = (
                         self.theta.item() if hasattr(self.theta, "item") else float(self.theta)
                     )
@@ -460,26 +627,52 @@ class BackEnd(mp.Process):
                     T = torch.from_numpy(T_np).to(self.device)
                     self.viewpoints[cur_frame_idx] = viewpoint
                     self.current_window = current_window
+                    gaussian_count_before = self.gaussians.get_xyz.shape[0]
+                    profile_start = self._profile_start()
+                    new_gaussians = 0
                     if pts3d is not None and imgs is not None:
                         try:
-                            self.add_next_kf_dust3r(
+                            new_gaussians = self.add_next_kf_dust3r(
                                 cur_frame_idx,
                                 pts3d,
                                 imgs,
                                 T,
                                 mask,
                                 scale=self.scale,
+                                max_points=self.max_new_gaussians_per_kf,
                             )
                         except Exception as exc:
                             Log(
                                 "DUSt3R keyframe insertion failed, using depth fallback:",
                                 exc,
                             )
-                            self.add_next_kf(
-                                cur_frame_idx, viewpoint, depth_map=depth_map
+                            new_gaussians = self.add_next_kf(
+                                cur_frame_idx,
+                                viewpoint,
+                                depth_map=depth_map,
+                                max_points=self.max_new_gaussians_per_kf,
                             )
                     else:
-                        self.add_next_kf(cur_frame_idx, viewpoint, depth_map=depth_map)
+                        new_gaussians = self.add_next_kf(
+                            cur_frame_idx,
+                            viewpoint,
+                            depth_map=depth_map,
+                            max_points=self.max_new_gaussians_per_kf,
+                        )
+                    self._profile_end(
+                        "backend_keyframe_gaussian_insertion",
+                        profile_start,
+                        cur_frame_idx,
+                    )
+                    gaussian_count_after = self.gaussians.get_xyz.shape[0]
+                    self._log_profile(
+                        f"frame {cur_frame_idx} gaussian_insert_count: {new_gaussians}"
+                    )
+                    self._log_profile(
+                        "frame "
+                        f"{cur_frame_idx} gaussian_count_before_after: "
+                        f"{gaussian_count_before}->{gaussian_count_after}"
+                    )
     
                     opt_params = []
                     frames_to_optimize = self.config["Training"]["pose_window"]
@@ -496,6 +689,10 @@ class BackEnd(mp.Process):
                             Log("Performing initial BA for initialization")
                         else:
                             iter_per_kf = self.mapping_itr_num
+                    else:
+                        iter_per_kf = self._select_mapping_iters(
+                            new_gaussians, iter_per_kf, insert_info
+                        )
                     for cam_idx in range(len(self.current_window)):    
                         if self.current_window[cam_idx] == 0:
                             continue

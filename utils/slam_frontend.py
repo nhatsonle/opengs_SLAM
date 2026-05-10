@@ -17,6 +17,12 @@ from utils.pose_utils import update_pose
 from utils.slam_utils import get_loss_tracking, get_median_depth
 from utils.dust3r_utils import get_result, get_scale
 
+
+def _sync_cuda_if_available():
+    if torch.cuda.is_available():
+        torch.cuda.synchronize()
+
+
 class FrontEnd(mp.Process):
     def __init__(self, config, d3r_model):
         super().__init__()
@@ -64,11 +70,13 @@ class FrontEnd(mp.Process):
         self.save_results = self.config["Results"]["save_results"]
         self.save_trj = self.config["Results"]["save_trj"]
         self.save_trj_kf_intv = self.config["Results"]["save_trj_kf_intv"]
+        self.profile_timing = self.config["Results"].get("profile_timing", True)
 
         self.tracking_itr_num = self.config["Training"]["tracking_itr_num"]
         self.kf_interval = self.config["Training"]["kf_interval"]
         self.window_size = self.config["Training"]["window_size"]
         self.single_thread = self.config["Training"]["single_thread"]
+        self.max_frames = self.config["Results"].get("max_frames", None)
 
         tracking_cfg = self.config.get("Tracking", {})
         self.pose_init_mode = tracking_cfg.get("pose_init", "constant_velocity")
@@ -80,6 +88,132 @@ class FrontEnd(mp.Process):
         self.depth_tracking_buffer = int(tracking_cfg.get("depth_tracking_buffer", 3))
         self.depth_min = float(tracking_cfg.get("depth_min", 0.1))
         self.depth_max = float(tracking_cfg.get("depth_max", 80.0))
+
+        self.mapping_opt_cfg = self.config.get("MappingOptimization", {})
+        self.selective_keyframe_insertion = self.mapping_opt_cfg.get(
+            "selective_keyframe_insertion", False
+        )
+
+    def _profile_start(self):
+        if not self.profile_timing:
+            return None
+        _sync_cuda_if_available()
+        return time.perf_counter()
+
+    def _profile_end(self, name, start, frame_idx=None):
+        if start is None:
+            return
+        _sync_cuda_if_available()
+        elapsed_ms = (time.perf_counter() - start) * 1000.0
+        if frame_idx is None:
+            Log(f"{name}: {elapsed_ms:.2f} ms", tag="Profile")
+        else:
+            Log(f"frame {frame_idx} {name}: {elapsed_ms:.2f} ms", tag="Profile")
+
+    def _dilate_insert_mask(self, mask):
+        dilation = int(self.mapping_opt_cfg.get("insertion_mask_dilate", 0))
+        if dilation <= 0:
+            return mask
+        kernel = 2 * dilation + 1
+        mask_float = mask.float()[None, None]
+        dilated = torch.nn.functional.max_pool2d(
+            mask_float, kernel_size=kernel, stride=1, padding=dilation
+        )
+        return dilated[0, 0] > 0
+
+    def _build_keyframe_insert_mask(self, cur_frame_idx, viewpoint):
+        if not self.selective_keyframe_insertion or self.gaussians is None:
+            return None, {}
+
+        profile_start = self._profile_start()
+        global_render_pkg = render(
+            viewpoint, self.gaussians, self.pipeline_params, self.background
+        )
+        self._profile_end(
+            "keyframe_global_render_for_insert_mask", profile_start, cur_frame_idx
+        )
+        if global_render_pkg is None:
+            return None, {}
+
+        profile_start = self._profile_start()
+        gt_img = viewpoint.original_image.cuda()
+        rgb_boundary_threshold = self.config["Training"]["rgb_boundary_threshold"]
+        valid_rgb = gt_img.sum(dim=0) > rgb_boundary_threshold
+        insert_mask = torch.zeros_like(valid_rgb, dtype=torch.bool)
+
+        opacity = global_render_pkg["opacity"].detach().squeeze()
+        opacity_th = float(self.mapping_opt_cfg.get("opacity_insert_th", 0.35))
+        if self.mapping_opt_cfg.get("use_render_coverage_mask", True):
+            insert_mask = torch.logical_or(insert_mask, opacity < opacity_th)
+
+        rgb_residual_mean = 0.0
+        if self.mapping_opt_cfg.get("use_rgb_residual_mask", True):
+            render_rgb = global_render_pkg["render"].detach()
+            rgb_residual = torch.abs(render_rgb - gt_img).mean(dim=0)
+            rgb_residual_th = float(
+                self.mapping_opt_cfg.get("rgb_residual_insert_th", 0.08)
+            )
+            insert_mask = torch.logical_or(insert_mask, rgb_residual > rgb_residual_th)
+            if valid_rgb.any():
+                rgb_residual_mean = rgb_residual[valid_rgb].mean().item()
+
+        depth_residual_mean = 0.0
+        if self.mapping_opt_cfg.get("use_depth_residual_mask", True):
+            dataset_depth = self._filtered_dataset_depth(viewpoint.depth)
+            if dataset_depth is not None:
+                dataset_depth_t = torch.from_numpy(dataset_depth).to(
+                    device=gt_img.device, dtype=torch.float32
+                )
+                render_depth = global_render_pkg["depth"].detach().squeeze()
+                valid_depth = torch.logical_and(dataset_depth_t > 0, render_depth > 0)
+                valid_depth = torch.logical_and(valid_depth, valid_rgb)
+                if valid_depth.any():
+                    rel_depth_residual = torch.abs(render_depth - dataset_depth_t) / (
+                        dataset_depth_t + 1e-6
+                    )
+                    depth_th = float(
+                        self.mapping_opt_cfg.get(
+                            "depth_residual_insert_ratio_th", 0.08
+                        )
+                    )
+                    insert_mask = torch.logical_or(
+                        insert_mask,
+                        torch.logical_and(rel_depth_residual > depth_th, valid_depth),
+                    )
+                    depth_residual_mean = rel_depth_residual[valid_depth].mean().item()
+
+        insert_mask = torch.logical_and(insert_mask, valid_rgb)
+        insert_mask = self._dilate_insert_mask(insert_mask)
+        insert_mask = torch.logical_and(insert_mask, valid_rgb)
+
+        insert_pixels = int(insert_mask.count_nonzero().item())
+        valid_pixels = max(int(valid_rgb.count_nonzero().item()), 1)
+        coverage_ratio = (
+            float((opacity[valid_rgb] >= opacity_th).float().mean().item())
+            if valid_rgb.any()
+            else 0.0
+        )
+        insert_ratio = insert_pixels / valid_pixels
+        insert_info = {
+            "insert_pixels": insert_pixels,
+            "valid_pixels": valid_pixels,
+            "insert_ratio": insert_ratio,
+            "coverage_ratio": coverage_ratio,
+            "mean_rgb_residual": rgb_residual_mean,
+            "mean_depth_residual": depth_residual_mean,
+        }
+        if self.profile_timing:
+            Log(
+                "keyframe_insert_mask: "
+                f"pixels={insert_pixels}/{valid_pixels} "
+                f"insert_ratio={insert_ratio:.4f} "
+                f"coverage={coverage_ratio:.4f} "
+                f"mean_rgb={rgb_residual_mean:.4f} "
+                f"mean_depth_rel={depth_residual_mean:.4f}",
+                tag="Profile",
+            )
+        self._profile_end("keyframe_insert_mask_build", profile_start, cur_frame_idx)
+        return insert_mask.detach().cpu().numpy(), insert_info
 
     def _filtered_dataset_depth(self, depth):
         if depth is None:
@@ -211,7 +345,15 @@ class FrontEnd(mp.Process):
             return False
 
         try:
-            _, pts3d, imgs, matches_im0, matches_im1, matches_3d0 = get_result(
+            (
+                _,
+                pts3d,
+                imgs,
+                matches_im0,
+                matches_im1,
+                matches_3d0,
+                confidence_masks,
+            ) = get_result(
                 viewpoint.original_image,
                 reference_image,
                 model=self.d3r_model,
@@ -221,6 +363,7 @@ class FrontEnd(mp.Process):
             Log("DUSt3R keyframe estimation failed, using depth fallback:", exc)
             self.pts3d = None
             self.imgs = None
+            self.mask = None
             return False
 
         if (
@@ -246,12 +389,23 @@ class FrontEnd(mp.Process):
 
         self.pts3d = pts3d
         self.imgs = imgs
+        self.mask = (
+            confidence_masks
+            if self.mapping_opt_cfg.get("use_dust3r_confidence_mask", True)
+            else None
+        )
+        if self.mask is not None:
+            mask_pixels = sum(int(m.detach().cpu().numpy().sum()) for m in self.mask)
+            if self.profile_timing:
+                Log(f"dust3r_confidence_mask_pixels: {mask_pixels}", tag="Profile")
         self.matches_im0 = matches_im0
         self.matches_im1 = matches_im1
         self.matches_3d0 = matches_3d0
         return True
         
-    def add_new_keyframe(self, cur_frame_idx, depth=None, opacity=None, init=False):
+    def add_new_keyframe(
+        self, cur_frame_idx, depth=None, opacity=None, init=False, insert_mask=None
+    ):
         rgb_boundary_threshold = self.config["Training"]["rgb_boundary_threshold"]
         if len(self.kf_indices) > 0:
             last_kf = self.kf_indices[-1]
@@ -277,6 +431,8 @@ class FrontEnd(mp.Process):
         if dataset_depth is not None:
             dataset_depth = dataset_depth.copy()
             dataset_depth[~valid_rgb.cpu().numpy()[0]] = 0.0
+            if insert_mask is not None and insert_mask.shape == dataset_depth.shape:
+                dataset_depth[~insert_mask] = 0.0
             return dataset_depth
         if self.monocular:
             if depth is None:
@@ -318,7 +474,14 @@ class FrontEnd(mp.Process):
                         invalid_depth_mask, std * 0.5, std * 0.2     
                     )
 
-                initial_depth[~valid_rgb] = 0 
+                initial_depth[~valid_rgb] = 0
+                if insert_mask is not None and insert_mask.shape == initial_depth.shape[-2:]:
+                    insert_mask_t = torch.from_numpy(insert_mask).to(
+                        device=initial_depth.device, dtype=torch.bool
+                    )
+                    initial_depth = initial_depth * insert_mask_t.unsqueeze(0).to(
+                        initial_depth.dtype
+                    )
             return initial_depth.cpu().numpy()[0]
 
         initial_depth = torch.from_numpy(viewpoint.depth).unsqueeze(0)      
@@ -523,8 +686,22 @@ class FrontEnd(mp.Process):
         return window, removed_frame
     ### Exchange info with backend via following functions
     # Request new keyframe; enqueue related info to backend
-    def request_keyframe(self, cur_frame_idx, viewpoint, current_window, depthmap):
-        msg = ["keyframe", cur_frame_idx, viewpoint, current_window, depthmap, self.pts3d, self.imgs, self.mask, self.scale1, self.theta]
+    def request_keyframe(
+        self, cur_frame_idx, viewpoint, current_window, depthmap, insert_info=None
+    ):
+        msg = [
+            "keyframe",
+            cur_frame_idx,
+            viewpoint,
+            current_window,
+            depthmap,
+            self.pts3d,
+            self.imgs,
+            self.mask,
+            self.scale1,
+            self.theta,
+            insert_info or {},
+        ]
         self.backend_queue.put(msg)
         self.requested_keyframe += 1
     # Request initialization; enqueue related info to backend.
@@ -582,7 +759,10 @@ class FrontEnd(mp.Process):
 
             if self.frontend_queue.empty():         # Check if frontend_queue is empty; if so, start processing the current frame
                 tic.record()
-                if cur_frame_idx >= len(self.dataset):  # Finish the frontend process
+                if cur_frame_idx >= len(self.dataset) or (
+                    self.max_frames is not None and cur_frame_idx >= self.max_frames
+                ):
+                    # Finish the frontend process
                     if self.save_results:
                         eval_ate(
                             self.cameras,
@@ -609,10 +789,12 @@ class FrontEnd(mp.Process):
                     time.sleep(0.01)
                     continue
                 
+                profile_start = self._profile_start()
                 viewpoint = Camera.init_from_dataset(
                     self.dataset, cur_frame_idx, projection_matrix
                 )
                 viewpoint.compute_grad_mask(self.config)
+                self._profile_end("load_frame", profile_start, cur_frame_idx)
 
                 self.cameras[cur_frame_idx] = viewpoint
         
@@ -633,26 +815,37 @@ class FrontEnd(mp.Process):
                 )
 
                 # Tracking
+                profile_start = self._profile_start()
                 render_pkg = self.tracking(cur_frame_idx, viewpoint)
+                self._profile_end("tracking", profile_start, cur_frame_idx)
                 self.last_color = self.cameras[cur_frame_idx].original_image
                 if render_pkg is None:
                     self.cleanup(cur_frame_idx)
                     cur_frame_idx += 1
                     continue
+                profile_start = self._profile_start()
                 self._store_local_depth_gaussian(cur_frame_idx, viewpoint)
+                self._profile_end(
+                    "local_depth_gaussian_creation", profile_start, cur_frame_idx
+                )
     
                 current_window_dict = {}
                 current_window_dict[self.current_window[0]] = self.current_window[1:]
                 keyframes = [self.cameras[kf_idx] for kf_idx in self.current_window]
                 
-                self.q_main2vis.put(
-                    gui_utils.GaussianPacket(
-                        gaussians=clone_obj(self.gaussians),
-                        current_frame=viewpoint,
-                        keyframes=keyframes,
-                        kf_window=current_window_dict,
+                if self.config["Results"]["use_gui"]:
+                    profile_start = self._profile_start()
+                    self.q_main2vis.put(
+                        gui_utils.GaussianPacket(
+                            gaussians=clone_obj(self.gaussians),
+                            current_frame=viewpoint,
+                            keyframes=keyframes,
+                            kf_window=current_window_dict,
+                        )
                     )
-                )
+                    self._profile_end(
+                        "clone_gui_gaussian_packet", profile_start, cur_frame_idx
+                    )
                 
                 if self.requested_keyframe > 0:
                     self.cleanup(cur_frame_idx)
@@ -684,6 +877,9 @@ class FrontEnd(mp.Process):
                     create_kf = check_time and create_kf
                 if create_kf:       
                     reference_keyframe_idx = last_keyframe_idx
+                    insert_mask, insert_info = self._build_keyframe_insert_mask(
+                        cur_frame_idx, viewpoint
+                    )
                     self.current_window, removed = self.add_to_window(
                         cur_frame_idx,
                         curr_visibility,
@@ -695,11 +891,20 @@ class FrontEnd(mp.Process):
                         depth=render_pkg["depth"],
                         opacity=render_pkg["opacity"],
                         init=False,
+                        insert_mask=insert_mask,
                     )
+                    profile_start = self._profile_start()
                     self._run_keyframe_dust3r(viewpoint, reference_keyframe_idx)
+                    self._profile_end(
+                        "dust3r_keyframe_inference", profile_start, cur_frame_idx
+                    )
                     Log("new keyframe: ", cur_frame_idx)
                     self.request_keyframe(   
-                        cur_frame_idx, viewpoint, self.current_window, depth_map
+                        cur_frame_idx,
+                        viewpoint,
+                        self.current_window,
+                        depth_map,
+                        insert_info,
                     )
                 else:
                     self.cleanup(cur_frame_idx)
@@ -727,14 +932,20 @@ class FrontEnd(mp.Process):
             else:       # If the frontend queue contains messages from the backend, process them
                 data = self.frontend_queue.get()
                 if data[0] == "sync_backend":
+                    profile_start = self._profile_start()
                     self.sync_backend(data)
+                    self._profile_end("frontend_sync_backend", profile_start)
 
                 elif data[0] == "keyframe":
+                    profile_start = self._profile_start()
                     self.sync_backend(data)
+                    self._profile_end("frontend_sync_keyframe", profile_start)
                     self.requested_keyframe -= 1
 
                 elif data[0] == "init":
+                    profile_start = self._profile_start()
                     self.sync_backend(data)
+                    self._profile_end("frontend_sync_init", profile_start)
                     self.requested_init = False
 
                 elif data[0] == "stop":

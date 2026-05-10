@@ -119,7 +119,15 @@ def get_result(img1, img2, model, device, batch_size=1, niter=300, schedule='cos
     matches_3d1 = pts3d_list[1][reciprocal_in_P2]
     matches_3d0 = pts3d_list[0][nn2_in_P1][reciprocal_in_P2]
         
-    return trans_pose, pts3d, imgs, matches_im0, matches_im1, matches_3d0
+    return (
+        trans_pose,
+        pts3d,
+        imgs,
+        matches_im0,
+        matches_im1,
+        matches_3d0,
+        confidence_masks,
+    )
 
 # Obtain the scale factor based on point matching correspondence and point cloud coordinates    
 def get_scale(matches_im1_0, matches_im1_1, matches_im2_0, matches_im2_1, matches_3d1_0, matches_3d2_1):

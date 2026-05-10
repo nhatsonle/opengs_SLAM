@@ -65,6 +65,30 @@ class GaussianModel:
 
         self.isotropic = False
 
+    def _empty_gaussian_tensors(self):
+        scale_dim = 1 if self.isotropic else 3
+        return (
+            torch.empty((0, 3), dtype=torch.float, device="cuda"),
+            torch.empty(
+                (0, 3, (self.max_sh_degree + 1) ** 2),
+                dtype=torch.float,
+                device="cuda",
+            ),
+            torch.empty((0, scale_dim), dtype=torch.float, device="cuda"),
+            torch.empty((0, 4), dtype=torch.float, device="cuda"),
+            torch.empty((0, 1), dtype=torch.float, device="cuda"),
+        )
+
+    @staticmethod
+    def _limit_points(points, colors, max_points):
+        if max_points is None:
+            return points, colors
+        max_points = int(max_points)
+        if max_points <= 0 or points.shape[0] <= max_points:
+            return points, colors
+        keep = np.random.choice(points.shape[0], size=max_points, replace=False)
+        return points[keep], colors[keep]
+
     def build_covariance_from_scaling_rotation(
         self, scaling, scaling_modifier, rotation
     ):
@@ -105,7 +129,15 @@ class GaussianModel:
             self.active_sh_degree += 1
             
     # Initialize 3D Gaussians using image and depth map (MonoGS approach)
-    def create_pcd_from_image(self, cam_info, init=False, scale=2.0, depthmap=None):
+    def create_pcd_from_image(
+        self,
+        cam_info,
+        init=False,
+        scale=2.0,
+        depthmap=None,
+        insert_mask=None,
+        max_points=None,
+    ):
         cam = cam_info
         image_ab = (torch.exp(cam.exposure_a)) * cam.original_image + cam.exposure_b    
         image_ab = torch.clamp(image_ab, 0.0, 1.0)
@@ -129,18 +161,32 @@ class GaussianModel:
             rgb = o3d.geometry.Image(rgb_raw.astype(np.uint8))
             depth = o3d.geometry.Image(depth_raw.astype(np.float32))
 
-        return self.create_pcd_from_image_and_depth(cam, rgb, depth, init)
+        return self.create_pcd_from_image_and_depth(
+            cam, rgb, depth, init, insert_mask=insert_mask, max_points=max_points
+        )
     
     # Create a point cloud from RGB and depth to complete 3D Gaussians initialization (MonoGS approach)
-    def create_pcd_from_image_and_depth(self, cam, rgb, depth, init=False):
+    def create_pcd_from_image_and_depth(
+        self, cam, rgb, depth, init=False, insert_mask=None, max_points=None
+    ):
         if init:
             downsample_factor = self.config["Dataset"]["pcd_downsample_init"]
         else:
             downsample_factor = self.config["Dataset"]["pcd_downsample"]
         point_size = self.config["Dataset"]["point_size"]
+        if insert_mask is not None:
+            depth_np = np.asarray(depth).astype(np.float32).copy()
+            insert_mask = np.asarray(insert_mask).astype(bool)
+            if insert_mask.shape == depth_np.shape:
+                depth_np[~insert_mask] = 0.0
+                depth = o3d.geometry.Image(depth_np)
         if "adaptive_pointsize" in self.config["Dataset"]:
             if self.config["Dataset"]["adaptive_pointsize"]:
-                point_size = min(0.05, point_size * np.median(depth))
+                depth_np = np.asarray(depth).astype(np.float32)
+                valid_depth = depth_np[depth_np > 0]
+                if valid_depth.size > 0:
+                    point_size = min(0.05, point_size * np.median(valid_depth))
+
         rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(
             rgb,
             depth,
@@ -167,6 +213,9 @@ class GaussianModel:
         pcd_tmp = pcd_tmp.random_down_sample(1.0 / downsample_factor)
         new_xyz = np.asarray(pcd_tmp.points)
         new_rgb = np.asarray(pcd_tmp.colors)
+        new_xyz, new_rgb = self._limit_points(new_xyz, new_rgb, max_points)
+        if new_xyz.shape[0] == 0:
+            return self._empty_gaussian_tensors()
         #print("xyz's shape is:",new_xyz.shape)
         #print(new_xyz[:3])
         #print("rbg's shape is:",new_rgb.shape)
@@ -209,7 +258,18 @@ class GaussianModel:
         return fused_point_cloud, features, scales, rots, opacities
     
     # Initialize 3D Gaussians using pointmap and adjust scale
-    def create_pcd_from_dust3r(self, pts3d, imgs, T, frame_idx, save_dir, scale=1, mask=None, init=False ):
+    def create_pcd_from_dust3r(
+        self,
+        pts3d,
+        imgs,
+        T,
+        frame_idx,
+        save_dir,
+        scale=1,
+        mask=None,
+        init=False,
+        max_points=None,
+    ):
         if init:
             downsample_factor = self.config["Dataset"]["pcd_downsample_init"]
         else:
@@ -222,7 +282,12 @@ class GaussianModel:
         #imgs = imgs[0]
 
         if mask is not None:
-            mask = [np.asarray(m) for m in mask]  # 确保 mask 是 NumPy 数组
+            mask = [
+                m.detach().cpu().numpy().astype(bool)
+                if torch.is_tensor(m)
+                else np.asarray(m).astype(bool)
+                for m in mask
+            ]
             pts = np.concatenate([p[m].reshape(-1, 3) for p, m in zip(pts3d, mask)], axis=0)
             col = np.concatenate([img[m].reshape(-1, 3) for img, m in zip(imgs, mask)], axis=0)
         else:
@@ -250,6 +315,9 @@ class GaussianModel:
 
         new_xyz = np.asarray(pcd.points)
         new_rgb = np.asarray(pcd.colors)
+        new_xyz, new_rgb = self._limit_points(new_xyz, new_rgb, max_points)
+        if new_xyz.shape[0] == 0:
+            return self._empty_gaussian_tensors()
         #print("after down sample, xyz's shape is:",new_xyz.shape)
 
         pcd_obj = BasicPointCloud(
@@ -295,6 +363,8 @@ class GaussianModel:
     def extend_from_pcd(
         self, fused_point_cloud, features, scales, rots, opacities, kf_id
     ):
+        if fused_point_cloud.shape[0] == 0:
+            return
         new_xyz = nn.Parameter(fused_point_cloud.requires_grad_(True))
         new_features_dc = nn.Parameter(
             features[:, :, 0:1].transpose(1, 2).contiguous().requires_grad_(True)
@@ -320,10 +390,24 @@ class GaussianModel:
         )
 
     def extend_from_pcd_seq(
-        self, cam_info, kf_id=-1, init=False, scale=2.0, depthmap=None
+        self,
+        cam_info,
+        kf_id=-1,
+        init=False,
+        scale=2.0,
+        depthmap=None,
+        insert_mask=None,
+        max_points=None,
     ):
         fused_point_cloud, features, scales, rots, opacities = (
-            self.create_pcd_from_image(cam_info, init, scale=scale, depthmap=depthmap)
+            self.create_pcd_from_image(
+                cam_info,
+                init,
+                scale=scale,
+                depthmap=depthmap,
+                insert_mask=insert_mask,
+                max_points=max_points,
+            )
         )
         self.extend_from_pcd(
             fused_point_cloud, features, scales, rots, opacities, kf_id
@@ -766,13 +850,22 @@ class GaussianModel:
         self.densify_and_split(grads, max_grad, extent)
 
         prune_mask = (self.get_opacity < min_opacity).squeeze()
+        mapping_cfg = self.config.get("MappingOptimization", {}) if self.config else {}
+        old_enough_mask = None
+        if mapping_cfg.get("smart_pruning", False) and self.unique_kfIDs.numel() > 0:
+            current_kf_id = int(torch.max(self.unique_kfIDs).item())
+            min_age = int(mapping_cfg.get("prune_min_age", 2))
+            age = current_kf_id - self.unique_kfIDs.to(prune_mask.device)
+            old_enough_mask = age >= min_age
+            prune_mask = torch.logical_and(prune_mask, old_enough_mask)
         if max_screen_size:
             big_points_vs = self.max_radii2D > max_screen_size
             big_points_ws = self.get_scaling.max(dim=1).values > 0.1 * extent
+            big_points = torch.logical_or(big_points_vs, big_points_ws)
+            if old_enough_mask is not None:
+                big_points = torch.logical_and(big_points, old_enough_mask)
 
-            prune_mask = torch.logical_or(
-                torch.logical_or(prune_mask, big_points_vs), big_points_ws
-            )
+            prune_mask = torch.logical_or(prune_mask, big_points)
         self.prune_points(prune_mask)
 
     def add_densification_stats(self, viewspace_point_tensor, update_filter):

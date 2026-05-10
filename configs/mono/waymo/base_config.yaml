@@ -6,7 +6,8 @@ Results:
   use_gui: False
   eval_rendering: True
   use_wandb: False
-  color_refinement: False
+  color_refinement: True
+  profile_timing: False
 
 Dataset:
   type: 'waymo'
@@ -25,21 +26,49 @@ Tracking:
   depth_min: 0.1
   depth_max: 80.0
 
+MappingOptimization:
+  selective_keyframe_insertion: True
+  use_render_coverage_mask: True
+  use_rgb_residual_mask: True
+  use_depth_residual_mask: True
+  use_dust3r_confidence_mask: True
+
+  opacity_insert_th: 0.35
+  rgb_residual_insert_th: 0.08
+  depth_residual_insert_ratio_th: 0.08
+
+  max_new_gaussians_per_kf: 30000
+  min_new_gaussians_per_kf: 3000
+  insertion_mask_dilate: 3
+
+  adaptive_mapping_iters: True
+  small_insert_gaussians: 5000
+  small_insert_iters: 20
+  medium_insert_gaussians: 30000
+  medium_insert_iters: 50
+  low_coverage_full_mapping_th: 0.55
+
+  smart_pruning: True
+  prune_min_age: 2
+  prune_opacity_th: 0.005
+  prune_min_observations: 2
+  prune_large_screen_radius: True
+
 Training:
   init_itr_num: 200 #1050
   init_gaussian_update: 100
   init_gaussian_reset: 500
   init_gaussian_th: 0.005
   init_gaussian_extent: 30
-  tracking_itr_num: 50 #100
-  mapping_itr_num: 100 #150
+  tracking_itr_num: 20 #100
+  mapping_itr_num: 50 #150
   gaussian_update_every: 150
   gaussian_update_offset: 50
   gaussian_th: 0.7
   gaussian_extent: 1.0
   gaussian_reset: 2001
   size_threshold: 20
-  kf_interval: 5
+  kf_interval: 6
   window_size: 8
   pose_window: 3
   edge_threshold: 1.1
