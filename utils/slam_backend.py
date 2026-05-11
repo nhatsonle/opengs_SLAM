@@ -156,6 +156,26 @@ class BackEnd(mp.Process):
         )
         return selected_iters
 
+    def _select_insert_budget(self, insert_info):
+        base_budget = self.max_new_gaussians_per_kf
+        if base_budget is None or not insert_info:
+            return base_budget
+        adaptive_budget = self.mapping_opt_cfg.get("adaptive_insert_budget", True)
+        if not adaptive_budget:
+            return base_budget
+        min_budget = int(self.mapping_opt_cfg.get("min_new_gaussians_per_kf", 3000))
+        coverage_ratio = float(insert_info.get("coverage_ratio", 1.0))
+        insert_ratio = float(insert_info.get("insert_ratio", 0.0))
+        low_coverage_th = float(self.mapping_opt_cfg.get("low_coverage_full_mapping_th", 0.55))
+        high_insert_ratio_th = float(self.mapping_opt_cfg.get("high_insert_ratio_budget_th", 0.18))
+        if coverage_ratio < low_coverage_th or insert_ratio > high_insert_ratio_th:
+            return int(base_budget)
+        # progressively reduce budget when scene is already well covered
+        reduction = max(0.25, 1.0 - 0.7 * coverage_ratio)
+        budget = int(base_budget * reduction)
+        budget = max(min_budget, min(int(base_budget), budget))
+        return budget
+
     # In MonoGS, initialize Gaussians and add to the current scene (not enabled)
     def add_next_kf(
         self,
@@ -661,6 +681,7 @@ class BackEnd(mp.Process):
                     gaussian_count_before = self.gaussians.get_xyz.shape[0]
                     profile_start = self._profile_start()
                     new_gaussians = 0
+                    selected_budget = self._select_insert_budget(insert_info)
                     if pts3d is not None and imgs is not None:
                         try:
                             new_gaussians = self.add_next_kf_dust3r(
@@ -670,7 +691,7 @@ class BackEnd(mp.Process):
                                 T,
                                 mask,
                                 scale=self.scale,
-                                max_points=self.max_new_gaussians_per_kf,
+                                max_points=selected_budget,
                             )
                         except Exception as exc:
                             Log(
@@ -681,14 +702,14 @@ class BackEnd(mp.Process):
                                 cur_frame_idx,
                                 viewpoint,
                                 depth_map=depth_map,
-                                max_points=self.max_new_gaussians_per_kf,
+                                max_points=selected_budget,
                             )
                     else:
                         new_gaussians = self.add_next_kf(
                             cur_frame_idx,
                             viewpoint,
                             depth_map=depth_map,
-                            max_points=self.max_new_gaussians_per_kf,
+                            max_points=selected_budget,
                         )
                     self._profile_end(
                         "backend_keyframe_gaussian_insertion",

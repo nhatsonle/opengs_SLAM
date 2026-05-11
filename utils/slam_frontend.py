@@ -140,13 +140,23 @@ class FrontEnd(mp.Process):
         rgb_boundary_threshold = self.config["Training"]["rgb_boundary_threshold"]
         valid_rgb = gt_img.sum(dim=0) > rgb_boundary_threshold
         insert_mask = torch.zeros_like(valid_rgb, dtype=torch.bool)
+        score_map = torch.zeros_like(gt_img[0], dtype=torch.float32)
+        score_cfg = self.mapping_opt_cfg.get("insert_score", {})
+        w_cov = float(score_cfg.get("coverage_weight", 1.0))
+        w_rgb = float(score_cfg.get("rgb_weight", 1.0))
+        w_depth = float(score_cfg.get("depth_weight", 1.0))
+        score_th_high = float(score_cfg.get("threshold_high", 1.0))
+        score_th_low = float(score_cfg.get("threshold_low", 0.7))
 
         opacity = global_render_pkg["opacity"].detach().squeeze()
         opacity_th = float(self.mapping_opt_cfg.get("opacity_insert_th", 0.35))
         if self.mapping_opt_cfg.get("use_render_coverage_mask", True):
             insert_mask = torch.logical_or(insert_mask, opacity < opacity_th)
+            cov_gap = torch.clamp(opacity_th - opacity, min=0.0) / max(opacity_th, 1e-6)
+            score_map = score_map + w_cov * cov_gap
 
         rgb_residual_mean = 0.0
+        rgb_residual = None
         if self.mapping_opt_cfg.get("use_rgb_residual_mask", True):
             render_rgb = global_render_pkg["render"].detach()
             rgb_residual = torch.abs(render_rgb - gt_img).mean(dim=0)
@@ -154,10 +164,12 @@ class FrontEnd(mp.Process):
                 self.mapping_opt_cfg.get("rgb_residual_insert_th", 0.08)
             )
             insert_mask = torch.logical_or(insert_mask, rgb_residual > rgb_residual_th)
+            score_map = score_map + w_rgb * (rgb_residual / max(rgb_residual_th, 1e-6))
             if valid_rgb.any():
                 rgb_residual_mean = rgb_residual[valid_rgb].mean().item()
 
         depth_residual_mean = 0.0
+        rel_depth_residual = None
         if self.mapping_opt_cfg.get("use_depth_residual_mask", True):
             dataset_depth = self._filtered_dataset_depth(viewpoint.depth)
             if dataset_depth is not None:
@@ -180,8 +192,15 @@ class FrontEnd(mp.Process):
                         insert_mask,
                         torch.logical_and(rel_depth_residual > depth_th, valid_depth),
                     )
+                    normalized_depth_residual = rel_depth_residual / max(depth_th, 1e-6)
+                    score_map = score_map + w_depth * normalized_depth_residual * valid_depth.float()
                     depth_residual_mean = rel_depth_residual[valid_depth].mean().item()
 
+        # unified unexplained-region score + hysteresis gating
+        high_mask = score_map > score_th_high
+        low_mask = score_map > score_th_low
+        insert_mask = torch.logical_or(insert_mask, high_mask)
+        insert_mask = torch.logical_and(insert_mask, low_mask)
         insert_mask = torch.logical_and(insert_mask, valid_rgb)
         insert_mask = self._dilate_insert_mask(insert_mask)
         insert_mask = torch.logical_and(insert_mask, valid_rgb)
@@ -201,6 +220,8 @@ class FrontEnd(mp.Process):
             "coverage_ratio": coverage_ratio,
             "mean_rgb_residual": rgb_residual_mean,
             "mean_depth_residual": depth_residual_mean,
+            "score_mean": float(score_map[valid_rgb].mean().item()) if valid_rgb.any() else 0.0,
+            "score_high_pixels": int(high_mask.count_nonzero().item()),
         }
         if self.profile_timing:
             Log(

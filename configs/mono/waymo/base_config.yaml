@@ -39,7 +39,15 @@ MappingOptimization:
 
   max_new_gaussians_per_kf: 30000
   min_new_gaussians_per_kf: 3000
+  adaptive_insert_budget: True
+  high_insert_ratio_budget_th: 0.18
   insertion_mask_dilate: 3
+  insert_score:
+    coverage_weight: 1.0
+    rgb_weight: 1.0
+    depth_weight: 1.0
+    threshold_high: 1.0
+    threshold_low: 0.7
 
   adaptive_mapping_iters: True
   small_insert_gaussians: 5000
