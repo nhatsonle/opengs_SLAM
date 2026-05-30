@@ -13,6 +13,6 @@ datasets/
 croco
 checkpoints
 results
-submodules
+submodules/
 OpenGS-SLAM/
 MonoGS/

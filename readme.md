@@ -36,8 +36,8 @@ cd OpenGS-SLAM
 
 ```bash
 apt-get update && apt-get install -y libgl1-mesa-glx libglib2.0-0 build-essential git
-pip install numpy==1.24.4 scipy matplotlib pandas networkx tqdm pyyaml opencv-python ffmpeg \
-            pycolmap einops evo plyfile open3d trimesh roma numpy-quaternion \
+pip install numpy==1.24.4 scipy matplotlib pandas networkx tqdm pyyaml rich opencv-python ffmpeg \
+            pycolmap einops evo plyfile==1.0.3 open3d trimesh roma numpy-quaternion \
             lpips tensorboard wandb pyopengl pyrender huggingface-hub cvxpy munch glfw imgviz pyglm==2.7.1 torchmetrics==1.4.0.post0
 ```
 
