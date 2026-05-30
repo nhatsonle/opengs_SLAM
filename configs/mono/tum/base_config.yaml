@@ -43,7 +43,7 @@ Training:
   prune_mode: 'slam'
   single_thread: False
   spherical_harmonics: False
-  pose_init: 'constant_velocity'
+  pose_init: 'previous_pose'
   dust3r_scale_min: 0.05
   dust3r_scale_max: 20.0
 

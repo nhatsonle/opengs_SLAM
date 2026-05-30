@@ -54,7 +54,7 @@ class FrontEnd(mp.Process):
         self.scale = 1                  # Scale factor computed using median, not enabled
         self.scale1 = 1                 # Scale factor computed using mean, used for scale correction
         self.theta = 0                  # Camera angle diff from last keyframe
-        self.pose_init_method = "constant_velocity"
+        self.pose_init_method = "previous_pose"
         self.dust3r_scale_min = 0.05
         self.dust3r_scale_max = 20.0
         self.dust3r_calls = 0
@@ -71,7 +71,7 @@ class FrontEnd(mp.Process):
         self.window_size = self.config["Training"]["window_size"]
         self.single_thread = self.config["Training"]["single_thread"]      
         self.pose_init_method = self.config["Training"].get(
-            "pose_init", "constant_velocity"
+            "pose_init", "previous_pose"
         )
         self.dust3r_scale_min = self.config["Training"].get(
             "dust3r_scale_min", 0.05
@@ -591,6 +591,12 @@ class FrontEnd(mp.Process):
                         self.occ_aware_visibility,
                         self.current_window,
                     )       
+                    if self.monocular and not self.initialized and removed is not None:
+                        self.reset = True
+                        Log(
+                            "Keyframes lacks sufficient overlap to initialize the map, resetting."
+                        )
+                        continue
                     depth_map = self.add_new_keyframe(      
                         cur_frame_idx,
                         depth=render_pkg["depth"],
