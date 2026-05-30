@@ -438,7 +438,10 @@ class BackEnd(mp.Process):
                     mask = data[7]
                     self.scale = data[8]
                     self.theta = data[9]
-                    theta_value = self.theta.item()
+                    theta_value = (
+                        self.theta.item() if hasattr(self.theta, "item") else self.theta
+                    )
+                    theta_value = float(theta_value)
                     ## adjust the cumulative iterations for Adaptive Learning Rate Adjustment
                     if theta_value >= 2:
                         self.iteration_count = self.iteration_count * (1-np.sqrt(theta_value / 90))

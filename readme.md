@@ -80,6 +80,20 @@ The processed data for the 9 Waymo segments can be downloaded via [baidu](https:
 
 Save data under the `datasets/waymo` directory.
 
+### TUM dataset
+
+The TUM RGB sequences used by the monocular configs can be downloaded with:
+
+```bash
+bash scripts/download_tum.sh
+```
+
+This creates the following folders under `datasets/tum`:
+
+- `rgbd_dataset_freiburg1_desk`
+- `rgbd_dataset_freiburg2_xyz`
+- `rgbd_dataset_freiburg3_long_office_household`
+
 ## Run
 
 ```bash
@@ -88,6 +102,10 @@ CUDA_VISIBLE_DEVICES=0 python slam.py --config configs/mono/waymo/100613.yaml
 
 ## All 9 Waymo scenes
 bash run_waymo.sh
+
+## TUM monocular examples
+CUDA_VISIBLE_DEVICES=0 python slam.py --config configs/mono/tum/fr3_office.yaml
+bash run_tum.sh
 ```
 
 ## Demo
@@ -98,7 +116,9 @@ bash run_waymo.sh
 
 ## Run on other dataset
 
-- Please organize your data format and modify the code in `utils/dataset.py`.
+- TUM RGB-only configs are provided under `configs/mono/tum`, following the MonoGS monocular scene presets.
+
+- Please organize any additional dataset format and modify the code in `utils/dataset.py`.
 
 - Depth map input interface is still retained in the code, although we didn't use it for SLAM.
 

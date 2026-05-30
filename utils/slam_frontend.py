@@ -13,7 +13,7 @@ from utils.logging_utils import Log
 from utils.multiprocessing_utils import clone_obj
 from utils.pose_utils import update_pose
 from utils.slam_utils import get_loss_tracking, get_median_depth
-from utils.dust3r_utils import get_result, get_scale
+from utils.dust3r_utils import get_result
 
 class FrontEnd(mp.Process):
     def __init__(self, config, d3r_model):
@@ -54,6 +54,11 @@ class FrontEnd(mp.Process):
         self.scale = 1                  # Scale factor computed using median, not enabled
         self.scale1 = 1                 # Scale factor computed using mean, used for scale correction
         self.theta = 0                  # Camera angle diff from last keyframe
+        self.pose_init_method = "constant_velocity"
+        self.dust3r_scale_min = 0.05
+        self.dust3r_scale_max = 20.0
+        self.dust3r_calls = 0
+        self.dust3r_time = 0.0
         
     def set_hyperparams(self):
         self.save_dir = self.config["Results"]["save_dir"]
@@ -65,6 +70,15 @@ class FrontEnd(mp.Process):
         self.kf_interval = self.config["Training"]["kf_interval"]
         self.window_size = self.config["Training"]["window_size"]
         self.single_thread = self.config["Training"]["single_thread"]      
+        self.pose_init_method = self.config["Training"].get(
+            "pose_init", "constant_velocity"
+        )
+        self.dust3r_scale_min = self.config["Training"].get(
+            "dust3r_scale_min", 0.05
+        )
+        self.dust3r_scale_max = self.config["Training"].get(
+            "dust3r_scale_max", 20.0
+        )
         
     def add_new_keyframe(self, cur_frame_idx, depth=None, opacity=None, init=False):
         rgb_boundary_threshold = self.config["Training"]["rgb_boundary_threshold"]
@@ -81,7 +95,8 @@ class FrontEnd(mp.Process):
             R_last = R_last.to(torch.float32)
             R_diff = torch.matmul(R_last.T, R_now)
             trace_R_diff = torch.trace(R_diff)
-            theta_rad = torch.acos((trace_R_diff - 1) / 2)
+            cos_theta = torch.clamp((trace_R_diff - 1) / 2, -1.0, 1.0)
+            theta_rad = torch.acos(cos_theta)
             theta_deg = torch.rad2deg(theta_rad)
             self.theta = theta_deg
         # print("angle diff is:",self.theta)
@@ -152,26 +167,100 @@ class FrontEnd(mp.Process):
         depth_map = self.add_new_keyframe(cur_frame_idx, init=True)
         self.request_init(cur_frame_idx, viewpoint, depth_map)      
         self.reset = False
-    
-    def tracking(self, cur_frame_idx, viewpoint):
-        prev = self.cameras[cur_frame_idx - self.use_every_n_frames]
-        # Get relative pose, pointcloud, and point matching correspondence
-        trans_pose ,pts3d, imgs, matches_im0, matches_im1, matches_3d0=get_result(viewpoint.original_image, self.last_color, model=self.d3r_model, device=self.device)
+
+    def run_dust3r_pair(self, img1, img2, tag):
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+        start_time = time.time()
+        result = get_result(img1, img2, model=self.d3r_model, device=self.device)
+        if torch.cuda.is_available():
+            torch.cuda.synchronize()
+        self.dust3r_calls += 1
+        self.dust3r_time += time.time() - start_time
+        Log(
+            f"DUSt3R {tag}: call {self.dust3r_calls}, "
+            f"total {self.dust3r_time:.2f}s"
+        )
+        return result
+
+    def initialize_tracking_pose(self, cur_frame_idx, viewpoint):
+        prev_idx = cur_frame_idx - self.use_every_n_frames
+        prev = self.cameras[prev_idx]
+
+        if self.pose_init_method != "constant_velocity":
+            viewpoint.update_RT(prev.R, prev.T)
+            return
+
+        prevprev_idx = cur_frame_idx - 2 * self.use_every_n_frames
+        if prevprev_idx not in self.cameras:
+            viewpoint.update_RT(prev.R, prev.T)
+            return
+
+        prevprev = self.cameras[prevprev_idx]
+        prev_w2c = getWorld2View2(prev.R, prev.T)
+        prevprev_w2c = getWorld2View2(prevprev.R, prevprev.T)
+        prev_c2w = torch.linalg.inv(prev_w2c)
+        prevprev_c2w = torch.linalg.inv(prevprev_w2c)
+        motion = prev_c2w @ torch.linalg.inv(prevprev_c2w)
+        pred_c2w = motion @ prev_c2w
+        pred_w2c = torch.linalg.inv(pred_c2w)
+        viewpoint.update_RT(pred_w2c[:3, :3], pred_w2c[:3, 3])
+
+    def estimate_keyframe_dust3r_scale(self, trans_pose, cur_frame_idx, ref_frame_idx):
+        cur_frame = self.cameras[cur_frame_idx]
+        ref_frame = self.cameras[ref_frame_idx]
+
+        cur_c2w = torch.linalg.inv(getWorld2View2(cur_frame.R, cur_frame.T))
+        ref_c2w = torch.linalg.inv(getWorld2View2(ref_frame.R, ref_frame.T))
+        map_dist = torch.norm(cur_c2w[:3, 3] - ref_c2w[:3, 3]).item()
+        dust3r_dist = float(np.linalg.norm(trans_pose[:3, 3]))
+
+        if (
+            not np.isfinite(map_dist)
+            or not np.isfinite(dust3r_dist)
+            or map_dist < 1e-6
+            or dust3r_dist < 1e-6
+        ):
+            return 1.0
+
+        scale_divisor = dust3r_dist / map_dist
+        scale_divisor = float(
+            np.clip(scale_divisor, self.dust3r_scale_min, self.dust3r_scale_max)
+        )
+        return scale_divisor
+
+    def prepare_keyframe_dust3r(self, cur_frame_idx, ref_frame_idx):
+        viewpoint = self.cameras[cur_frame_idx]
+        ref_viewpoint = self.cameras[ref_frame_idx]
+        (
+            trans_pose,
+            pts3d,
+            imgs,
+            matches_im0,
+            matches_im1,
+            matches_3d0,
+        ) = self.run_dust3r_pair(
+            viewpoint.original_image,
+            ref_viewpoint.original_image,
+            tag=f"kf {cur_frame_idx}<->{ref_frame_idx}",
+        )
+        scale_divisor = self.estimate_keyframe_dust3r_scale(
+            trans_pose, cur_frame_idx, ref_frame_idx
+        )
         self.pts3d = pts3d
         self.imgs = imgs
-        # Get scale factor
-        scale1, scale = get_scale(self.matches_im1, self.matches_im0, matches_im1, matches_im0, self.matches_3d0, matches_3d0)
-        self.scale = self.scale * scale
-        self.scale1 = self.scale1 * scale1
         self.matches_im0 = matches_im0
         self.matches_im1 = matches_im1
         self.matches_3d0 = matches_3d0
-        # Pose Estimation
-        trans_pose_inv = np.linalg.inv(trans_pose)
-        trans_pose_inv_torch = torch.from_numpy(trans_pose_inv).to(self.device)
-        w2c1 = getWorld2View2(prev.R, prev.T)
-        w2c2 = trans_pose_inv_torch @ w2c1
-        viewpoint.update_RT(w2c2[:3,:3],w2c2[:3,3])         # Compute current frame pose estimation using relative pose
+        self.scale1 = scale_divisor
+        self.scale = scale_divisor
+        Log(
+            f"keyframe DUSt3R scale divisor: {scale_divisor:.4f} "
+            f"(kf {cur_frame_idx}, ref {ref_frame_idx})"
+        )
+
+    def tracking(self, cur_frame_idx, viewpoint):
+        self.initialize_tracking_pose(cur_frame_idx, viewpoint)
         # pose optimization
         opt_params = []     
         opt_params.append(
@@ -236,17 +325,6 @@ class FrontEnd(mp.Process):
             if converged:
                 break
             
-        ## Print camera pose change and scale factor
-        #c2w1 = torch.linalg.inv(w2c1)
-        #c2w2 = torch.linalg.inv(w2c2)
-        #c2w3 = torch.linalg.inv(getWorld2View2(viewpoint.R, viewpoint.T))
-        #print("Pose estimation translation:", c2w2[:3,3]- c2w1[:3,3])
-        #print("Optimized pose translation:", c2w3[:3,3]- c2w2[:3,3])
-        #print("Current frame mean scale:",scale1)
-        #print("Cumulative mean scale factor:", self.scale1)
-        #print("Current frame median scale:",scale)
-        #print("Cumulative median scale factor:", self.scale)
-        
         self.median_depth = get_median_depth(depth, opacity)    # Median rendered depth for keyframe determination
         return render_pkg
     
@@ -435,9 +513,22 @@ class FrontEnd(mp.Process):
         
                 if self.reset:
                     self.last_color = self.cameras[cur_frame_idx].original_image
-                    _ ,pts3d, imgs, self.matches_im0, self.matches_im1, self.matches_3d0=get_result(self.last_color,self.last_color, model=self.d3r_model, device=self.device)
+                    (
+                        _,
+                        pts3d,
+                        imgs,
+                        self.matches_im0,
+                        self.matches_im1,
+                        self.matches_3d0,
+                    ) = self.run_dust3r_pair(
+                        self.last_color,
+                        self.last_color,
+                        tag=f"init {cur_frame_idx}",
+                    )
                     self.pts3d = pts3d
-                    self.imgs = imgs 
+                    self.imgs = imgs
+                    self.scale = 1.0
+                    self.scale1 = 1.0
                     self.initialize(cur_frame_idx, viewpoint)
                     self.current_window.append(cur_frame_idx)
                     cur_frame_idx += 1
@@ -493,6 +584,7 @@ class FrontEnd(mp.Process):
                 if self.single_thread:      
                     create_kf = check_time and create_kf
                 if create_kf:       
+                    self.prepare_keyframe_dust3r(cur_frame_idx, last_keyframe_idx)
                     self.current_window, removed = self.add_to_window(
                         cur_frame_idx,
                         curr_visibility,

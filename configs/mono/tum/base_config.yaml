@@ -6,10 +6,10 @@ Results:
   use_gui: False
   eval_rendering: True
   use_wandb: False
-  color_refinement: True
+  color_refinement: False
 
 Dataset:
-  type: 'waymo'
+  type: 'tum'
   sensor_type: 'monocular'
   pcd_downsample: 64
   pcd_downsample_init: 32

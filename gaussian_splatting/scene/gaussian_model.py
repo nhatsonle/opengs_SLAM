@@ -229,7 +229,10 @@ class GaussianModel:
             pts = np.concatenate([p.reshape(-1, 3) for p in pts3d], axis=0)
             col = np.concatenate([img.reshape(-1, 3) for img in imgs], axis=0)
         
-        pts = pts * (1/scale)       # Scale Correction   
+        scale = float(scale)
+        if not np.isfinite(scale) or abs(scale) < 1e-8:
+            scale = 1.0
+        pts = pts * (1.0 / scale)       # Scale Correction
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(pts)
         pcd.colors = o3d.utility.Vector3dVector(col) 

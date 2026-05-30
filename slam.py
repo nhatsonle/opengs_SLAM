@@ -117,6 +117,9 @@ class SLAM:
         backend_process.start()        
         self.frontend.run()
         backend_queue.put(["pause"])    
+        if hasattr(self.frontend, "dust3r_calls"):
+            Log("DUSt3R calls", self.frontend.dust3r_calls, tag="Eval")
+            Log("DUSt3R total time", self.frontend.dust3r_time, tag="Eval")
 
         end.record()
         torch.cuda.synchronize()
