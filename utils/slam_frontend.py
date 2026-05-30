@@ -53,6 +53,7 @@ class FrontEnd(mp.Process):
         self.matches_3d0 = None
         self.scale = 1                  # Scale factor computed using median, not enabled
         self.scale1 = 1                 # Scale factor computed using mean, used for scale correction
+        self.dust3r_reference_idx = 0
         self.theta = 0                  # Camera angle diff from last keyframe
         self.pose_init_method = "previous_pose"
         self.dust3r_scale_min = 0.05
@@ -236,6 +237,8 @@ class FrontEnd(mp.Process):
             trans_pose,
             pts3d,
             imgs,
+            masks,
+            reference_idx,
             matches_im0,
             matches_im1,
             matches_3d0,
@@ -249,6 +252,8 @@ class FrontEnd(mp.Process):
         )
         self.pts3d = pts3d
         self.imgs = imgs
+        self.mask = masks
+        self.dust3r_reference_idx = reference_idx
         self.matches_im0 = matches_im0
         self.matches_im1 = matches_im1
         self.matches_3d0 = matches_3d0
@@ -421,12 +426,34 @@ class FrontEnd(mp.Process):
     ### Exchange info with backend via following functions
     # Request new keyframe; enqueue related info to backend
     def request_keyframe(self, cur_frame_idx, viewpoint, current_window, depthmap):
-        msg = ["keyframe", cur_frame_idx, viewpoint, current_window, depthmap, self.pts3d, self.imgs, self.mask, self.scale1, self.theta]
+        msg = [
+            "keyframe",
+            cur_frame_idx,
+            viewpoint,
+            current_window,
+            depthmap,
+            self.pts3d,
+            self.imgs,
+            self.mask,
+            self.scale1,
+            self.theta,
+            self.dust3r_reference_idx,
+        ]
         self.backend_queue.put(msg)
         self.requested_keyframe += 1
     # Request initialization; enqueue related info to backend.
     def request_init(self, cur_frame_idx, viewpoint, depth_map):
-        msg = ["init", cur_frame_idx, viewpoint, depth_map, self.pts3d, self.imgs, self.mask, self.scale1]
+        msg = [
+            "init",
+            cur_frame_idx,
+            viewpoint,
+            depth_map,
+            self.pts3d,
+            self.imgs,
+            self.mask,
+            self.scale1,
+            self.dust3r_reference_idx,
+        ]
         self.backend_queue.put(msg)
         self.requested_init = True
     # Sync data from backend (3D Gaussians, occlusion-aware visibility, keyframe info)
@@ -517,6 +544,8 @@ class FrontEnd(mp.Process):
                         _,
                         pts3d,
                         imgs,
+                        masks,
+                        reference_idx,
                         self.matches_im0,
                         self.matches_im1,
                         self.matches_3d0,
@@ -527,6 +556,8 @@ class FrontEnd(mp.Process):
                     )
                     self.pts3d = pts3d
                     self.imgs = imgs
+                    self.mask = masks
+                    self.dust3r_reference_idx = reference_idx
                     self.scale = 1.0
                     self.scale1 = 1.0
                     self.initialize(cur_frame_idx, viewpoint)

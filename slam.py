@@ -221,6 +221,7 @@ if __name__ == "__main__":
     parser.add_argument("--config", type=str)
     parser.add_argument("--eval", action="store_true")
     parser.add_argument("--color", action="store_true")
+    parser.add_argument("--num_frames", type=int, default=-1)
 
     args = parser.parse_args(sys.argv[1:])
 
@@ -230,6 +231,8 @@ if __name__ == "__main__":
         config = yaml.safe_load(yml)
 
     config = load_config(args.config)
+    if args.num_frames > 0:
+        config["Dataset"]["num_frames"] = args.num_frames
     save_dir = None
 
     if args.eval:

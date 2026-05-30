@@ -235,6 +235,17 @@ class BaseDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         pass
 
+    def apply_frame_limit(self):
+        num_frames = self.config["Dataset"].get("num_frames", -1)
+        if num_frames is None or int(num_frames) <= 0:
+            return
+
+        num_frames = min(int(num_frames), self.num_imgs)
+        self.num_imgs = num_frames
+        for attr in ("color_paths", "color_paths_r", "depth_paths", "poses", "frames"):
+            if hasattr(self, attr):
+                setattr(self, attr, getattr(self, attr)[:num_frames])
+
 # Base Class for Monocular Dataset
 class MonocularDataset(BaseDataset):
     def __init__(self, args, path, config):     
@@ -434,6 +445,7 @@ class WaymoDataset(MonocularDataset):
         self.color_paths = parser.color_paths
         self.depth_paths = parser.depth_paths
         self.poses = parser.poses      
+        self.apply_frame_limit()
 
 
 class TUMDataset(MonocularDataset):  
@@ -445,6 +457,7 @@ class TUMDataset(MonocularDataset):
         self.color_paths = parser.color_paths
         self.depth_paths = parser.depth_paths
         self.poses = parser.poses
+        self.apply_frame_limit()
 
 
 class ReplicaDataset(MonocularDataset):
@@ -456,6 +469,7 @@ class ReplicaDataset(MonocularDataset):
         self.color_paths = parser.color_paths
         self.depth_paths = parser.depth_paths
         self.poses = parser.poses
+        self.apply_frame_limit()
 
 
 class EurocDataset(StereoDataset):
@@ -467,6 +481,7 @@ class EurocDataset(StereoDataset):
         self.color_paths = parser.color_paths
         self.color_paths_r = parser.color_paths_r
         self.poses = parser.poses
+        self.apply_frame_limit()
 
 
 class RealsenseDataset(BaseDataset):

@@ -75,13 +75,37 @@ class BackEnd(mp.Process):
             viewpoint, kf_id=frame_idx, init=init, scale=scale, depthmap=depth_map
         )
     # Initialize Gaussians via pointmap and add to the current scene   
-    def add_next_kf_dust3r(self, frame_idx, pts3d, imgs, T, mask=None, init=False, scale=1):
+    def add_next_kf_dust3r(
+        self,
+        frame_idx,
+        pts3d,
+        imgs,
+        T,
+        mask=None,
+        init=False,
+        scale=1,
+        pointmap_indices=None,
+    ):
         fused_point_cloud, features, scales, rots, opacities = (
-            self.gaussians.create_pcd_from_dust3r(pts3d, imgs, T, frame_idx, self.save_dir, scale, mask, init=init)
+            self.gaussians.create_pcd_from_dust3r(
+                pts3d,
+                imgs,
+                T,
+                frame_idx,
+                self.save_dir,
+                scale,
+                mask,
+                init=init,
+                pointmap_indices=pointmap_indices,
+            )
         )
         self.gaussians.extend_from_pcd(
             fused_point_cloud, features, scales, rots, opacities, frame_idx
         )
+
+    def get_c2w_tensor(self, viewpoint):
+        T_np = np.linalg.inv(getWorld2View2(viewpoint.R, viewpoint.T).cpu().numpy())
+        return torch.from_numpy(T_np).to(self.device)
 
     def reset(self):
         self.iteration_count = 0
@@ -420,11 +444,19 @@ class BackEnd(mp.Process):
                     self.reset()
 
                     self.viewpoints[cur_frame_idx] = viewpoint
-                    T_np = np.linalg.inv(getWorld2View2(viewpoint.R,viewpoint.T).cpu().numpy())
-                    T = torch.from_numpy(T_np).to(self.device)
+                    T = self.get_c2w_tensor(viewpoint)
                     #self.add_next_kf(cur_frame_idx, viewpoint, depth_map=depth_map, init=True)
                     ## Initialize SLAM map using pointmap
-                    self.add_next_kf_dust3r(cur_frame_idx, pts3d, imgs, T, mask, init=True, scale=self.scale)
+                    self.add_next_kf_dust3r(
+                        cur_frame_idx,
+                        pts3d,
+                        imgs,
+                        T,
+                        mask,
+                        init=True,
+                        scale=self.scale,
+                        pointmap_indices=[0],
+                    )
                     self.initialize_map(cur_frame_idx, viewpoint)
                     self.push_to_frontend("init")
 
@@ -438,6 +470,7 @@ class BackEnd(mp.Process):
                     mask = data[7]
                     self.scale = data[8]
                     self.theta = data[9]
+                    dust3r_reference_idx = int(data[10]) if len(data) > 10 else 0
                     theta_value = (
                         self.theta.item() if hasattr(self.theta, "item") else self.theta
                     )
@@ -449,13 +482,26 @@ class BackEnd(mp.Process):
                         self.gaussians.update_learning_rate(self.iteration_count)
                     #print("current keyframe:", cur_frame_idx, "cumulative iterations:", self.iteration_count)
 
-                    T_np = np.linalg.inv(getWorld2View2(viewpoint.R,viewpoint.T).cpu().numpy())
-                    T = torch.from_numpy(T_np).to(self.device)
                     self.viewpoints[cur_frame_idx] = viewpoint
                     self.current_window = current_window
+                    reference_frame_idx = (
+                        current_window[dust3r_reference_idx]
+                        if 0 <= dust3r_reference_idx < len(current_window)
+                        else cur_frame_idx
+                    )
+                    reference_viewpoint = self.viewpoints[reference_frame_idx]
+                    T = self.get_c2w_tensor(reference_viewpoint)
                     #self.add_next_kf(cur_frame_idx, viewpoint, depth_map=depth_map)
                     ## Adaptive Scale Mapper
-                    self.add_next_kf_dust3r(cur_frame_idx, pts3d, imgs, T, mask, scale=self.scale)
+                    self.add_next_kf_dust3r(
+                        cur_frame_idx,
+                        pts3d,
+                        imgs,
+                        T,
+                        mask,
+                        scale=self.scale,
+                        pointmap_indices=[0],
+                    )
     
                     opt_params = []
                     frames_to_optimize = self.config["Training"]["pose_window"]

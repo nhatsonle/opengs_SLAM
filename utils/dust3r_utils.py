@@ -84,21 +84,27 @@ def torch_images_to_dust3r_format(tensor_images, size, square_ok=False, verbose=
 
 # Input image pair to obtain relative pose, point cloud, and point matching correspondence
 def get_result(img1, img2, model, device, batch_size=1, niter=300, schedule='cosine', lr=0.01):
-    pairs = make_pairs(torch_images_to_dust3r_format([img1,img2],size=512), scene_graph='complete', prefilter=None, symmetrize=True)
+    pairs = make_pairs(
+        torch_images_to_dust3r_format([img1, img2], size=512, square_ok=True),
+        scene_graph='complete',
+        prefilter=None,
+        symmetrize=True,
+    )
     output = inference(pairs, model, device, batch_size=batch_size)
     scene = global_aligner(output, device=device, mode=GlobalAlignerMode.PairViewer)
-    poses = scene.get_im_poses()          
+    poses = scene.get_im_poses()
     poses_np = [pose.detach().cpu().numpy() for pose in poses]
-    pts3d = scene.get_pts3d()     
-    pts3d1 = [pts.detach().cpu().numpy() for pts in scene.get_pts3d()] 
+    pts3d = scene.get_pts3d()
+    pts3d1 = [pts.detach().cpu().numpy() for pts in pts3d]
     confidence_masks = scene.get_masks()
+    masks_np = [mask.detach().cpu().numpy().astype(bool) for mask in confidence_masks]
     imgs = scene.imgs
-    
+
     # Determine which frame is the reference and get relative pose
     identity_matrix = np.eye(4, 4)
-    diff1 = np.linalg.norm(poses_np[0] - identity_matrix, ord='fro')
-    diff2 = np.linalg.norm(poses_np[1] - identity_matrix, ord='fro')
-    if diff1<diff2:
+    pose_diffs = [np.linalg.norm(pose - identity_matrix, ord='fro') for pose in poses_np]
+    reference_idx = int(np.argmin(pose_diffs))
+    if reference_idx == 0:
         trans_pose = np.linalg.inv(poses_np[1]) 
     else:
         trans_pose = poses_np[0]
@@ -107,7 +113,7 @@ def get_result(img1, img2, model, device, batch_size=1, niter=300, schedule='cos
     pts2d_list, pts3d_list = [], []
 
     for i in range(2):
-        conf_i = confidence_masks[i].detach().cpu().numpy() 
+        conf_i = masks_np[i]
         pts2d_list.append(xy_grid(*imgs[i].shape[:2][::-1])[conf_i])  # imgs[i].shape[:2] = (H, W)
         pts3d_list.append(pts3d1[i][conf_i])
     reciprocal_in_P2, nn2_in_P1, num_matches = find_reciprocal_matches(*pts3d_list)
@@ -119,7 +125,7 @@ def get_result(img1, img2, model, device, batch_size=1, niter=300, schedule='cos
     matches_3d1 = pts3d_list[1][reciprocal_in_P2]
     matches_3d0 = pts3d_list[0][nn2_in_P1][reciprocal_in_P2]
         
-    return trans_pose, pts3d, imgs, matches_im0, matches_im1, matches_3d0
+    return trans_pose, pts3d, imgs, masks_np, reference_idx, matches_im0, matches_im1, matches_3d0
 
 # Obtain the scale factor based on point matching correspondence and point cloud coordinates    
 def get_scale(matches_im1_0, matches_im1_1, matches_im2_0, matches_im2_1, matches_3d1_0, matches_3d2_1):
@@ -178,9 +184,3 @@ def get_scale(matches_im1_0, matches_im1_1, matches_im2_0, matches_im2_1, matche
     scale_median = np.median(scale_array[:,3])
 
     return scale_mean, scale_median
-    
-    
-    
-    
-    
-    

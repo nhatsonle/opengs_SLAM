@@ -209,25 +209,51 @@ class GaussianModel:
         return fused_point_cloud, features, scales, rots, opacities
     
     # Initialize 3D Gaussians using pointmap and adjust scale
-    def create_pcd_from_dust3r(self, pts3d, imgs, T, frame_idx, save_dir, scale=1, mask=None, init=False ):
+    def create_pcd_from_dust3r(
+        self,
+        pts3d,
+        imgs,
+        T,
+        frame_idx,
+        save_dir,
+        scale=1,
+        mask=None,
+        init=False,
+        pointmap_indices=None,
+    ):
         if init:
             downsample_factor = self.config["Dataset"]["pcd_downsample_init"]
         else:
             downsample_factor = self.config["Dataset"]["pcd_downsample"]
         point_size = self.config["Dataset"]["point_size"]
         
-        pts3d = [p.detach().cpu().numpy() for p in pts3d]
-        imgs = [img for img in imgs]
-        #pts3d = pts3d[0].detach().cpu().numpy()
-        #imgs = imgs[0]
+        pts3d = [
+            p.detach().cpu().numpy() if hasattr(p, "detach") else np.asarray(p)
+            for p in pts3d
+        ]
+        imgs = [np.asarray(img) for img in imgs]
+        if pointmap_indices is None:
+            pointmap_indices = range(len(pts3d))
 
-        if mask is not None:
-            mask = [np.asarray(m) for m in mask]  # 确保 mask 是 NumPy 数组
-            pts = np.concatenate([p[m].reshape(-1, 3) for p, m in zip(pts3d, mask)], axis=0)
-            col = np.concatenate([img[m].reshape(-1, 3) for img, m in zip(imgs, mask)], axis=0)
-        else:
-            pts = np.concatenate([p.reshape(-1, 3) for p in pts3d], axis=0)
-            col = np.concatenate([img.reshape(-1, 3) for img in imgs], axis=0)
+        mask = None if mask is None else [np.asarray(m).astype(bool) for m in mask]
+        pts_chunks = []
+        color_chunks = []
+        for idx in pointmap_indices:
+            p = pts3d[idx]
+            img = imgs[idx]
+            valid = np.isfinite(p).all(axis=-1)
+            if mask is not None:
+                valid = np.logical_and(valid, mask[idx])
+            if not np.any(valid):
+                continue
+            pts_chunks.append(p[valid].reshape(-1, 3))
+            color_chunks.append(img[valid].reshape(-1, 3))
+
+        if not pts_chunks:
+            raise ValueError("DUSt3R did not produce any valid points for Gaussian init")
+
+        pts = np.concatenate(pts_chunks, axis=0)
+        col = np.concatenate(color_chunks, axis=0)
         
         scale = float(scale)
         if not np.isfinite(scale) or abs(scale) < 1e-8:
