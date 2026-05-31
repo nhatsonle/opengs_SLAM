@@ -48,6 +48,17 @@ Training:
   dust3r_scale_min: 0.05
   dust3r_scale_max: 20.0
 
+  # Coverage-Residual Guided Map Expansion: chỉ chèn Gaussian ở vùng map hiện
+  # tại chưa giải thích đủ tốt (opacity thấp HOẶC RGB residual cao), giao với
+  # confidence mask của DUSt3R. enabled=False -> hành vi gốc (chèn toàn bộ).
+  coverage_guided_expansion:
+    enabled: True
+    opacity_threshold: 0.5        # opacity render dưới mức này = chưa phủ đủ
+    rgb_residual_threshold: 0.1   # residual L1 trung bình (ảnh [0,1]) trên mức này = render sai
+    use_depth_residual: False
+    depth_residual_threshold: 0.1
+    min_opacity_floor: 0.1        # opacity dưới mức này luôn chèn, bất kể residual
+
   lr:
     cam_rot_delta: 0.003
     cam_trans_delta: 0.001

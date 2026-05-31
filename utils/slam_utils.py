@@ -1,4 +1,82 @@
 import torch
+import torch.nn.functional as F
+
+
+def _resize_map_to(target_hw, *maps):
+    """Resize one or more [1,H,W] or [H,W] float maps to target (H, W) via bilinear."""
+    th, tw = target_hw
+    out = []
+    for m in maps:
+        if m is None:
+            out.append(None)
+            continue
+        x = m
+        if x.dim() == 2:
+            x = x.unsqueeze(0)
+        # x is [C,H,W]
+        if x.shape[-2:] != (th, tw):
+            x = F.interpolate(
+                x.unsqueeze(0), size=(th, tw), mode="bilinear", align_corners=False
+            ).squeeze(0)
+        out.append(x)
+    return out if len(out) > 1 else out[0]
+
+
+def compute_coverage_residual_mask(
+    target_hw,
+    opacity,
+    render_rgb,
+    gt_image,
+    render_depth=None,
+    dust3r_depth=None,
+    opacity_threshold=0.5,
+    rgb_residual_threshold=0.1,
+    use_depth_residual=False,
+    depth_residual_threshold=0.1,
+    min_opacity_floor=0.1,
+):
+    """Build a [H,W] bool insertion mask over the DUSt3R pointmap grid (target_hw).
+
+    A pixel is flagged for new-Gaussian insertion when the current map either
+    fails to cover it (low rendered opacity), renders it with the wrong color
+    (high RGB residual), or — optionally — gets its geometry wrong (high depth
+    residual). All render-space maps are resized to the pointmap resolution so
+    the mask aligns with pts3d/imgs/confidence masks.
+
+    Returns a torch bool tensor of shape target_hw on the same device as inputs.
+    """
+    th, tw = target_hw
+
+    opacity_r = _resize_map_to((th, tw), opacity)  # [1,H,W]
+    render_rgb_r, gt_rgb_r = _resize_map_to((th, tw), render_rgb, gt_image)  # [3,H,W]
+
+    opacity_r = opacity_r.squeeze(0)  # [H,W]
+
+    # Vùng chưa được map phủ đủ (opacity thấp).
+    need_coverage = opacity_r < opacity_threshold
+
+    # Vùng render sai màu so với ground truth.
+    rgb_residual = torch.abs(render_rgb_r - gt_rgb_r).mean(dim=0)  # [H,W]
+    need_appearance = rgb_residual > rgb_residual_threshold
+
+    insertion = need_coverage | need_appearance
+
+    if use_depth_residual and render_depth is not None and dust3r_depth is not None:
+        depth_r, dust3r_depth_r = _resize_map_to(
+            (th, tw), render_depth, dust3r_depth
+        )
+        depth_r = depth_r.squeeze(0)
+        dust3r_depth_r = dust3r_depth_r.squeeze(0)
+        valid_depth = (depth_r > 0) & (dust3r_depth_r > 0)
+        depth_residual = torch.abs(depth_r - dust3r_depth_r)
+        need_depth = (depth_residual > depth_residual_threshold) & valid_depth
+        insertion = insertion | need_depth
+
+    # Sàn an toàn: vùng gần như không có Gaussian thì luôn chèn, bất kể residual.
+    insertion = insertion | (opacity_r < min_opacity_floor)
+
+    return insertion
+
 
 def image_gradient(image):
     # Compute image gradient using Scharr Filter

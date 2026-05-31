@@ -12,7 +12,7 @@ from gaussian_splatting.utils.graphics_utils import getProjectionMatrix2, getWor
 from utils.logging_utils import Log
 from utils.multiprocessing_utils import clone_obj
 from utils.pose_utils import update_pose
-from utils.slam_utils import get_loss_mapping
+from utils.slam_utils import get_loss_mapping, compute_coverage_residual_mask
 
 
 class BackEnd(mp.Process):
@@ -69,6 +69,17 @@ class BackEnd(mp.Process):
             if "single_thread" in self.config["Dataset"]
             else False
         )
+
+        # Coverage-Residual Guided Map Expansion
+        cge = self.config["Training"].get("coverage_guided_expansion", {})
+        self.cge_enabled = bool(cge.get("enabled", False))
+        self.cge_opacity_threshold = float(cge.get("opacity_threshold", 0.5))
+        self.cge_rgb_residual_threshold = float(cge.get("rgb_residual_threshold", 0.1))
+        self.cge_use_depth_residual = bool(cge.get("use_depth_residual", False))
+        self.cge_depth_residual_threshold = float(
+            cge.get("depth_residual_threshold", 0.1)
+        )
+        self.cge_min_opacity_floor = float(cge.get("min_opacity_floor", 0.1))
     # In MonoGS, initialize Gaussians and add to the current scene (not enabled)
     def add_next_kf(self, frame_idx, viewpoint, init=False, scale=2.0, depth_map=None):
         self.gaussians.extend_from_pcd_seq(
@@ -85,7 +96,23 @@ class BackEnd(mp.Process):
         init=False,
         scale=1,
         pointmap_indices=None,
+        viewpoint=None,
     ):
+        if pointmap_indices is None:
+            pointmap_indices = list(range(len(pts3d)))
+
+        # Coverage-Residual Guided Map Expansion: chỉ chèn Gaussian ở vùng map
+        # hiện tại chưa giải thích đủ tốt. Bỏ qua khi init (scene còn rỗng).
+        if (
+            self.cge_enabled
+            and not init
+            and viewpoint is not None
+            and self.gaussians.get_xyz.shape[0] > 0
+        ):
+            mask = self._apply_coverage_residual_guidance(
+                pts3d, mask, pointmap_indices, viewpoint, frame_idx
+            )
+
         fused_point_cloud, features, scales, rots, opacities = (
             self.gaussians.create_pcd_from_dust3r(
                 pts3d,
@@ -102,6 +129,64 @@ class BackEnd(mp.Process):
         self.gaussians.extend_from_pcd(
             fused_point_cloud, features, scales, rots, opacities, frame_idx
         )
+
+    def _apply_coverage_residual_guidance(
+        self, pts3d, mask, pointmap_indices, viewpoint, frame_idx
+    ):
+        """Render scene hiện tại từ pose keyframe và AND insertion mask vào
+        confidence mask của DUSt3R. Trả về list mask (cùng cấu trúc đầu vào)."""
+        render_pkg = render(
+            viewpoint, self.gaussians, self.pipeline_params, self.background
+        )
+        render_rgb = torch.clamp(render_pkg["render"], 0.0, 1.0)  # [3,H,W]
+        opacity = render_pkg["opacity"]  # [1,H,W]
+        render_depth = render_pkg["depth"]  # [1,H,W]
+        gt_image = viewpoint.original_image.to(render_rgb.device)  # [3,H,W]
+
+        # Mask gốc có thể là None hoặc list theo từng pointmap index.
+        if mask is None:
+            new_mask = [None] * len(pts3d)
+        else:
+            new_mask = [
+                (m if m is None else (np.asarray(m).astype(bool))) for m in mask
+            ]
+
+        total_before = 0
+        total_after = 0
+        for idx in pointmap_indices:
+            p = pts3d[idx]
+            p = p.detach().cpu().numpy() if hasattr(p, "detach") else np.asarray(p)
+            th, tw = p.shape[0], p.shape[1]
+
+            insertion = compute_coverage_residual_mask(
+                (th, tw),
+                opacity,
+                render_rgb,
+                gt_image,
+                render_depth=render_depth,
+                dust3r_depth=None,
+                opacity_threshold=self.cge_opacity_threshold,
+                rgb_residual_threshold=self.cge_rgb_residual_threshold,
+                use_depth_residual=self.cge_use_depth_residual,
+                depth_residual_threshold=self.cge_depth_residual_threshold,
+                min_opacity_floor=self.cge_min_opacity_floor,
+            )
+            insertion_np = insertion.detach().cpu().numpy().astype(bool)
+
+            base = new_mask[idx]
+            if base is None:
+                base = np.ones((th, tw), dtype=bool)
+            total_before += int(base.sum())
+            combined = np.logical_and(base, insertion_np)
+            total_after += int(combined.sum())
+            new_mask[idx] = combined
+
+        Log(
+            f"[CGE] kf {frame_idx}: insertion-guided points "
+            f"{total_after}/{total_before} "
+            f"({100.0 * total_after / max(total_before, 1):.1f}% kept)"
+        )
+        return new_mask
 
     def get_c2w_tensor(self, viewpoint):
         T_np = np.linalg.inv(getWorld2View2(viewpoint.R, viewpoint.T).cpu().numpy())
@@ -501,8 +586,9 @@ class BackEnd(mp.Process):
                         mask,
                         scale=self.scale,
                         pointmap_indices=[0],
+                        viewpoint=viewpoint,
                     )
-    
+
                     opt_params = []
                     frames_to_optimize = self.config["Training"]["pose_window"]
                     iter_per_kf = self.mapping_itr_num if self.single_thread else 150
