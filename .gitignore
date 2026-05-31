@@ -16,3 +16,4 @@ results
 submodules/
 OpenGS-SLAM/
 MonoGS/
+wandb/
